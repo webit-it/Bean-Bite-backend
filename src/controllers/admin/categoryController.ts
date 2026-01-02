@@ -3,6 +3,9 @@ import { Types } from "mongoose";
 import ICategoryController from "../../interfaces/controller/admin/category.controller.interface";
 import ICategoryServiceInterface from "../../interfaces/service/admin/category.service.interface";
 import { ERROR_MESSAGES } from "../../constants/errorMessages";
+import AppError from "../../utils/AppError";
+import { Messages } from "../../constants/messages";
+import HttpStatus from "../../constants/httpsStatusCode";
 
 export class CategoryController implements ICategoryController {
   constructor(private _categoryService: ICategoryServiceInterface) {
@@ -13,19 +16,17 @@ export class CategoryController implements ICategoryController {
       const { categoryName, description, slug } = req.body;
 
       if (!categoryName || !description) {
-        res.status(400).json({
-          success: false,
-          message: "categoryName and description are required",
-        });
-        return;
+        throw new AppError(
+          Messages.CATEGORY_NAME_AND_DESCRIPTION_REQUIRED,
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       if (!req.file) {
-        res.status(400).json({
-          success: false,
-          message: "Image is required",
-        });
-        return;
+        throw new AppError(
+          Messages.IMAGE_REQUIRED,
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       await this._categoryService.createCategory({
@@ -35,12 +36,12 @@ export class CategoryController implements ICategoryController {
         imageBuffer: req.file.buffer,
       });
 
-      res.status(201).json({
+      res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Category created successfully",
+        message: Messages.CATEGORY_CREATED_SUCCESSFULLY,
       });
     } catch (error: unknown) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message:
           error instanceof Error
@@ -54,15 +55,14 @@ export class CategoryController implements ICategoryController {
       const { slug } = req.params;
       console.log("controller slug:", slug);
 
-      const category =
-        await this._categoryService.getCategoryForEdit(slug);
+      const category = await this._categoryService.getCategoryForEdit(slug);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
         data: category,
       });
     } catch (error: unknown) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message:
           error instanceof Error
@@ -77,8 +77,10 @@ export class CategoryController implements ICategoryController {
       const { categoryName, description, status, slug } = req.body;
 
       if (!Types.ObjectId.isValid(id)) {
-        res.status(400).json({ message: "Invalid category ID" });
-        return;
+        throw new AppError(
+          Messages.INVALID_CATEGORY_ID,
+          HttpStatus.BAD_REQUEST
+        );
       }
 
       const updatedData: any = {
@@ -94,12 +96,12 @@ export class CategoryController implements ICategoryController {
 
       await this._categoryService.updateCategory(id, updatedData);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: "Category updated successfully",
+        message: Messages.CATEGORY_UPDATED_SUCCESSFULLY,
       });
     } catch (error: unknown) {
-      res.status(400).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message:
           error instanceof Error
@@ -108,49 +110,55 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-getAllCategories = async (req: Request, res: Response) => {
-  try {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 6;
-    const search = req.query.search as string | undefined;
+  getAllCategories = async (req: Request, res: Response) => {
+    try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 6;
+      const search = req.query.search as string | undefined;
 
-    const result =
-      await this._categoryService.getAllCategories(page, limit, search);
+      const result =
+        await this._categoryService.getAllCategories(page, limit, search);
 
-    res.status(200).json({
-      success: true,
-      data: result.data,
-      pagination: {
-        total: result.total,
-        page: result.page,
-        limit: result.limit,
-        totalPages: result.totalPages,
-      },
-    });
-  } catch (error: unknown) {
-    console.log("Get all categories controller error:", error);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result.data,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
+      });
+    } catch (error: unknown) {
+      console.log("Get all categories controller error:", error);
 
-    res.status(500).json({
-      success: false,
-      message:
-        error instanceof Error
-          ? error.message
-          : ERROR_MESSAGES.SERVER_ERROR,
-    });
-  }
-};
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
 
   toggleCategoryStatus = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_CATEGORY_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
       await this._categoryService.toggleCategoryStatus(id);
 
-      res.status(200).json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        message: "Category status toggled",
+        message: Messages.CATEGORY_STATUS_TOGGLED,
       });
     } catch (error: unknown) {
-      res.status(400).json({
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message:
           error instanceof Error

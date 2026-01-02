@@ -26,7 +26,6 @@ router.post(
 );
 router.get("/category/:slug", categoryController.getCategoryBySlug);
 router.get("/category", categoryController.getAllCategories);
-
 router.put(
   "/category/:id",
   upload.single("image"),

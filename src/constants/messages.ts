@@ -13,15 +13,14 @@ export const Messages = {
     AUTHENTICATION_FAILED :"Authentication Failed." ,
     JWT_NOT_DEFINED:"JWT_SECRET not defined",
     REFRESH_JWT_SECRET_NOT_DEFINED:"REFRESH_JWT_SECRET not defined",
-
+    IMAGE_REQUIRED:'image is required',
     PROFILE_UPDATED_SUCCESSFULLY:"Profile Updated Successfully",
     PASSWORD_DO_NOT_MATCH:"Password Do Not Match",
     ACCOUNT_BLOCKED:"You Account is Blocked",
-    CATEGORY_NOT_FOUND:"Catgory not found",
-    CATEGORY_AlREADY_EXIST:"Catgory already exist",
-
+    PRODUCT_AlREADY_EXIST:"Product already exist",
+    
     NOTIFICATION_NOT_FOUND: "Notification not found.",
-
+    
     DATA_NOT_FOUND: "Data not found.",
     CREATE_SUCCESS: "Created successfully.",
     UPDATE_SUCCESS: "Updated successfully.",
@@ -31,7 +30,7 @@ export const Messages = {
     UPDATE_FAILED: "Failed to update data.",
     DELETE_FAILED: "Failed to delete data.",
     CREATE_FAILED: "Failed to create data.",
-
+    
     INVALID_INPUT: "Invalid input provided.",
     MISSING_FIELDS: "Required fields are missing.",
     ALREADY_EXISTS: "Record already exists.",
@@ -39,4 +38,18 @@ export const Messages = {
     ACTION_NOT_ALLOWED: "Action not allowed.",
     LIMIT_EXCEEDED: "Limit exceeded. Please try again later.",
     NO_FILE_UPLOADED: "No file uploaded",
+
+    //category
+    INVALID_CATEGORY_ID:'invalid category id',
+    CATEGORY_STATUS_TOGGLED:'successfully status toggled',
+    CATEGORY_NOT_FOUND:"Catgory not found",
+    CATEGORY_AlREADY_EXIST:"Catgory already exist",
+    CATEGORY_UPDATED_SUCCESSFULLY:'Category updated successfully',
+    CATEGORY_CREATED_SUCCESSFULLY:'Category created successfully',
+    CATEGORY_NAME_AND_DESCRIPTION_REQUIRED:"category name and description are required",
+
+    //product
+    PRODUCT_NAME_AND_DESCRIPTION_REQUIRED:"Product name and description are required",
+    PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100:"Discount percentage cannot be more than 100",
+    PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE:"Fixed discount cannot be greater than product price",
 };

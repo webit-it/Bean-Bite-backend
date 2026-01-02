@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import IProductController from "../../interfaces/controller/admin/product.controller.interface";
 import IProductServiceInteface from "../../interfaces/service/admin/product.service.interface";
 import { ERROR_MESSAGES } from "../../constants/errorMessages";
+import AppError from "../../utils/AppError";
+import { Messages } from "../../constants/messages";
+import HttpStatus from "../../constants/httpsStatusCode";
 
 
 
@@ -10,23 +13,37 @@ export class ProductController implements IProductController {
 
     create = async (req: Request, res: Response) => {
         try {
-            const { productName, description, slug, price, category } = req.body;
-            console.log(req.file)
-
+            const { productName, description, slug, category, discountType } = req.body;
+            console.log(req.body)
+            const price = Number(req.body.price);
+            const discountValue = Number(req.body.discountValue);
             if (!productName || !description) {
-                res.status(400).json({
-                    success: false,
-                    message: "categoryName and description are required",
-                });
-                return;
+                throw new AppError(
+          Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
+          HttpStatus.BAD_REQUEST
+        );
+            }
+            if (discountType === "percentage" && discountValue > 100) {
+               throw new AppError(
+                Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
+                HttpStatus.BAD_REQUEST
+               );
+              
+    
+            }
+
+            if (discountType === "fixed" && discountValue > price) {
+                throw new AppError(
+                Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
+                HttpStatus.BAD_REQUEST
+               );
             }
 
             if (!req.file) {
-                res.status(400).json({
-                    success: false,
-                    message: "Image is required",
-                });
-                return;
+              throw new AppError(
+                Messages.IMAGE_REQUIRED,
+                HttpStatus.BAD_REQUEST
+               ); 
             }
 
             await this._productService.createProduct({
@@ -34,13 +51,15 @@ export class ProductController implements IProductController {
                 slug,
                 category,
                 price,
+                discountType,
+                discountValue,
                 description,
                 image: req.file.buffer,
             });
 
-            res.status(201).json({
+            res.status(HttpStatus.CREATED).json({
                 success: true,
-                message: "product created successfully",
+                message:Messages.CREATE_SUCCESS,
             });
         } catch (error: unknown) {
             res.status(400).json({

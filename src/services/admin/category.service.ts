@@ -3,6 +3,7 @@ import { Messages } from "../../constants/messages";
 import ICategoryRepository from "../../interfaces/repository/category.repostory.interface";
 import ICategoryServiceInterface from "../../interfaces/service/admin/category.service.interface";
 import { CreateCategoryDTO, ICategory, UpdateCategoryDTO } from "../../types/category.type";
+import AppError from "../../utils/AppError";
 import { uploadToCloudinary } from "../../utils/uploadToCloudinary";
 
 export class CategoryService implements ICategoryServiceInterface {
@@ -16,7 +17,10 @@ export class CategoryService implements ICategoryServiceInterface {
 
       const existing = await this._categoryRepository.findBySlug(slug);
       if (existing) {
-        throw { status: HttpStatus.NOT_FOUND, message: Messages.CATEGORY_AlREADY_EXIST };
+        throw new AppError(
+          Messages.CATEGORY_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
       }
 
       const imageUrl = await uploadToCloudinary(imageBuffer, "categories");
@@ -38,10 +42,10 @@ export class CategoryService implements ICategoryServiceInterface {
       const category = await this._categoryRepository.findBySlug(slug);
 
       if (!category) {
-        throw {
-          status: HttpStatus.NOT_FOUND,
-          message: Messages.CATEGORY_NOT_FOUND,
-        };
+        throw new AppError(
+          Messages.CATEGORY_NOT_FOUND,
+          HttpStatus.NOT_FOUND
+        );
       }
 
       return category;
@@ -58,10 +62,11 @@ export class CategoryService implements ICategoryServiceInterface {
           await this._categoryRepository.findByName(data.categoryName);
 
         if (existingCategory && existingCategory.slug !== data.slug) {
-          throw {
-            status: HttpStatus.BAD_REQUEST,
-            message: Messages.CATEGORY_AlREADY_EXIST,
-          };
+           throw new AppError(
+          Messages.CATEGORY_AlREADY_EXIST,
+          HttpStatus.BAD_REQUEST
+        );
+          
         }
       }
 
@@ -96,33 +101,9 @@ export class CategoryService implements ICategoryServiceInterface {
     }
   };
 
-  // getAllCategories = async (
-  //   page: number,
-  //   limit: number,
-  //   search?: string
-  // ) => {
-  //   try {
-  //     const result = await this._categoryRepository.findAllPaginated(
-  //       page,
-  //       limit,
-  //       search
-  //     );
-  //     console.log(result,"data from srvice")
 
-  //     return {
-  //       data: result.data,
-  //       total: result.total,
-  //       page: result.page,
-  //       limit: result.limit, 
-  //       totalPages: Math.ceil(result.total / result.limit),
-  //     };
-  //   } catch (error) {
-  //     console.log("Get all categories error:", error);
-  //     throw error;
-  //   }
-  // };
-  getAllCategories = async (page: number,limit: number,search?: string) => {
-    const result = await this._categoryRepository.findAllPaginated(page,limit,search);
+  getAllCategories = async (page: number, limit: number, search?: string) => {
+    const result = await this._categoryRepository.findAllPaginated(page, limit, search);
     return {
       data: result.data,
       total: result.total,
@@ -137,10 +118,10 @@ export class CategoryService implements ICategoryServiceInterface {
       const category = await this._categoryRepository.findById(id);
 
       if (!category) {
-        throw {
-          status: HttpStatus.NOT_FOUND,
-          message: Messages.CATEGORY_NOT_FOUND,
-        };
+          throw new AppError(
+          Messages.CATEGORY_NOT_FOUND,
+          HttpStatus.NOT_FOUND
+        );
       }
 
       const updated = await this._categoryRepository.update(id, {
@@ -148,15 +129,14 @@ export class CategoryService implements ICategoryServiceInterface {
       });
 
       if (!updated) {
-        throw {
-          status: HttpStatus.NOT_FOUND,
-          message: Messages.UPDATE_FAILED,
-        };
+         throw new AppError(
+          Messages.UPDATE_FAILED,
+          HttpStatus.NOT_FOUND
+        );
       }
 
       return updated;
     } catch (error) {
-      console.log("Toggle category status error:", error);
       throw error;
     }
   };

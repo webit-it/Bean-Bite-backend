@@ -4,14 +4,17 @@ import IProductServiceInteface from "../../interfaces/service/admin/product.serv
 import IProductRepository from "../../interfaces/repository/product.repository.interface";
 import { CreateProductDTO } from "../../types/product.type";
 import { calculateFinalPrice } from "../../utils/calculateFinalPrice";
+import HttpStatus from "../../constants/httpsStatusCode";
+import { Messages } from "../../constants/messages";
+import AppError from "../../utils/AppError";
 
 
 export class ProductService implements IProductServiceInteface {
   constructor(
     private _productRepository: IProductRepository
-  ) {}
+  ) { }
 
-   createProduct=async(data: CreateProductDTO)=> {
+  createProduct = async (data: CreateProductDTO) => {
     const {
       productName,
       description,
@@ -22,7 +25,13 @@ export class ProductService implements IProductServiceInteface {
       discountType,
       discountValue,
     } = data;
-
+    const existing = await this._productRepository.findBySlug(slug);
+    if (existing) {
+      throw new AppError(
+        Messages.PRODUCT_AlREADY_EXIST,
+        HttpStatus.NOT_FOUND
+      );
+    }
     const imageUrl = await uploadToCloudinary(image, "products");
 
     const finalPrice = calculateFinalPrice(

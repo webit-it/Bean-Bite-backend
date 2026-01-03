@@ -41,4 +41,10 @@ router.post(
   upload.single("image"),
   productController.create.bind(productController)
 );
+router.get("/product/:slug", productController.getProductBySlug);
+router.put(
+  "/product/:id",
+  upload.single("image"),
+  productController.editProduct 
+);
 export default router;

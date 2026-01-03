@@ -28,3 +28,15 @@ export interface CreateProductDTO {
   discountType?: "percentage" | "fixed";
   discountValue?: number;
 }
+export interface UpdateProductDTO {
+productName?: string;
+  slug?: string;
+  description?: string;
+  category?: mongoose.Types.ObjectId;
+  price?: number;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
+  finalPrice?: number;
+  image?: Buffer;
+  status?: boolean;
+}

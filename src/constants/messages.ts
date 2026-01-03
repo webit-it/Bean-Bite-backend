@@ -47,9 +47,12 @@ export const Messages = {
     CATEGORY_UPDATED_SUCCESSFULLY:'Category updated successfully',
     CATEGORY_CREATED_SUCCESSFULLY:'Category created successfully',
     CATEGORY_NAME_AND_DESCRIPTION_REQUIRED:"category name and description are required",
-
+    
     //product
     PRODUCT_NAME_AND_DESCRIPTION_REQUIRED:"Product name and description are required",
     PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100:"Discount percentage cannot be more than 100",
     PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE:"Fixed discount cannot be greater than product price",
+    PRODUCT_NOT_FOUND:"Product not found",
+    PRODUCT_UPDATED_SUCCESSFULLY:'product updated successfully',
+    INVALID_PRODUCT_ID:'invalid product id'
 };

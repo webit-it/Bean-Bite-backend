@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { uploadToCloudinary } from "../../utils/uploadToCloudinary";
 import IProductServiceInteface from "../../interfaces/service/admin/product.service.interface";
 import IProductRepository from "../../interfaces/repository/product.repository.interface";
-import { CreateProductDTO } from "../../types/product.type";
+import { CreateProductDTO, IProduct, UpdateProductDTO } from "../../types/product.type";
 import { calculateFinalPrice } from "../../utils/calculateFinalPrice";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
@@ -53,4 +53,77 @@ export class ProductService implements IProductServiceInteface {
       status: true,
     });
   }
+  getProductForEdit = async (slug: string) => {
+    try {
+      const product = await this._productRepository.findBySlug(slug);
+
+      if (!product) {
+        throw new AppError(
+          Messages.PRODUCT_NOT_FOUND,
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      return product;
+    } catch (error) {
+      console.log("Get category for edit error:", error);
+      throw error;
+    }
+  };
+  updateProduct = async (id: string, data: UpdateProductDTO) => {
+    try {
+      if (data.productName) {
+        const existingProduct =
+          await this._productRepository.findByName(data.productName);
+
+        if (existingProduct && existingProduct.slug !== data.slug) {
+          throw new AppError(
+            Messages.PRODUCT_AlREADY_EXIST,
+            HttpStatus.BAD_REQUEST
+          );
+
+        }
+      }
+      const price = data.price ?? 0;
+      const discountType = data.discountType;
+      const discountValue = data.discountValue;
+
+      const finalPrice = calculateFinalPrice(
+        price,
+        discountType,
+        discountValue
+      );
+      const updateData: Partial<IProduct> = {
+        productName: data.productName,
+        description: data.description,
+        status: data.status,
+        slug: data.slug,
+        category: data.category,
+        price: data.price,
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+        finalPrice: finalPrice,
+      };
+
+      if (data.image) {
+        const imageUrl = await uploadToCloudinary(data.image, "products");
+        updateData.image = imageUrl;
+      }
+
+      const updated = await this._productRepository.update(id, updateData);
+
+      if (!updated) {
+        throw {
+          status: HttpStatus.NOT_FOUND,
+          message: Messages.UPDATE_FAILED,
+        };
+      }
+
+      return updated;
+    } catch (error) {
+      console.log("Update category error:", error);
+      throw error;
+    }
+  };
+
 }

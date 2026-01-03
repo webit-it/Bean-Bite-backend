@@ -10,169 +10,169 @@ import { Types } from "mongoose";
 
 
 export class ProductController implements IProductController {
-    constructor(private _productService: IProductServiceInteface) { }
+  constructor(private _productService: IProductServiceInteface) { }
 
-    create = async (req: Request, res: Response) => {
-        try {
-            const { productName, description, slug, category, discountType } = req.body;
-            console.log(req.body)
-            const price = Number(req.body.price);
-            const discountValue = Number(req.body.discountValue);
-            if (!productName || !description) {
-                throw new AppError(
+  create = async (req: Request, res: Response) => {
+    try {
+      const { productName, description, slug, category, discountType } = req.body;
+      console.log(req.body)
+      const price = Number(req.body.price);
+      const discountValue = Number(req.body.discountValue);
+      if (!productName || !description) {
+        throw new AppError(
           Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
           HttpStatus.BAD_REQUEST
         );
-            }
-            if (discountType === "percentage" && discountValue > 100) {
-               throw new AppError(
-                Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
-                HttpStatus.BAD_REQUEST
-               );
-              
-    
-            }
+      }
+      if (discountType === "percentage" && discountValue > 100) {
+        throw new AppError(
+          Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
+          HttpStatus.BAD_REQUEST
+        );
 
-            if (discountType === "fixed" && discountValue > price) {
-                throw new AppError(
-                Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
-                HttpStatus.BAD_REQUEST
-               );
-            }
 
-            if (!req.file) {
-              throw new AppError(
-                Messages.IMAGE_REQUIRED,
-                HttpStatus.BAD_REQUEST
-               ); 
-            }
+      }
 
-            await this._productService.createProduct({
-                productName,
-                slug,
-                category,
-                price,
-                discountType,
-                discountValue,
-                description,
-                image: req.file.buffer,
-            });
+      if (discountType === "fixed" && discountValue > price) {
+        throw new AppError(
+          Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
+          HttpStatus.BAD_REQUEST
+        );
+      }
 
-            res.status(HttpStatus.CREATED).json({
-                success: true,
-                message:Messages.CREATE_SUCCESS,
-            });
-        } catch (error: unknown) {
-            res.status(400).json({
-                success: false,
-                message:
-                    error instanceof Error
-                        ? error.message
-                        : ERROR_MESSAGES.SERVER_ERROR,
-            });
-        }
+      if (!req.file) {
+        throw new AppError(
+          Messages.IMAGE_REQUIRED,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      await this._productService.createProduct({
+        productName,
+        slug,
+        category,
+        price,
+        discountType,
+        discountValue,
+        description,
+        image: req.file.buffer,
+      });
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: Messages.CREATE_SUCCESS,
+      });
+    } catch (error: unknown) {
+      res.status(400).json({
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : ERROR_MESSAGES.SERVER_ERROR,
+      });
     }
-      getProductBySlug = async (req: Request, res: Response) => {
-        try {
-          const { slug } = req.params;
-          console.log("controller slug:", slug);
-    
-          const product = await this._productService.getProductForEdit(slug);
-    
-          res.status(HttpStatus.OK).json({
-            success: true,
-            data: product,
-          });
-        } catch (error: unknown) {
-          res.status(HttpStatus.BAD_REQUEST).json({
-            success: false,
-            message:
-              error instanceof Error
-                ? error.message
-                : ERROR_MESSAGES.SERVER_ERROR,
-          });
-        }
-      };
-      editProduct = async (req: Request, res: Response) => {
-          try {
-            const { id } = req.params;
-            const {  productName,
-                slug,
-                category,
-                discountType,
-                description,
-                status
-             } = req.body;
-      
-            if (!Types.ObjectId.isValid(id)) {
-              throw new AppError(
-                Messages.INVALID_PRODUCT_ID,
-                HttpStatus.BAD_REQUEST
-              );
-            }
-            const price = Number(req.body.price);
-            const discountValue = Number(req.body.discountValue);
-            if (!productName || !description) {
-                throw new AppError(
+  }
+  getProductBySlug = async (req: Request, res: Response) => {
+    try {
+      const { slug } = req.params;
+      console.log("controller slug:", slug);
+
+      const product = await this._productService.getProductForEdit(slug);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: product,
+      });
+    } catch (error: unknown) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
+  editProduct = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { productName,
+        slug,
+        category,
+        discountType,
+        description,
+        status
+      } = req.body;
+
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_PRODUCT_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      const price = Number(req.body.price);
+      const discountValue = Number(req.body.discountValue);
+      if (!productName || !description) {
+        throw new AppError(
           Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
           HttpStatus.BAD_REQUEST
         );
-            }
-            if (discountType === "percentage" && discountValue > 100) {
-               throw new AppError(
-                Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
-                HttpStatus.BAD_REQUEST
-               );
-              
-    
-            }
+      }
+      if (discountType === "percentage" && discountValue > 100) {
+        throw new AppError(
+          Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
+          HttpStatus.BAD_REQUEST
+        );
 
-            if (discountType === "fixed" && discountValue > price) {
-                throw new AppError(
-                Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
-                HttpStatus.BAD_REQUEST
-               );
-            }
 
-            if (!req.file) {
-              throw new AppError(
-                Messages.IMAGE_REQUIRED,
-                HttpStatus.BAD_REQUEST
-               ); 
-            }
-      
-            const updatedData: any = {
-                productName,
-                slug,
-                category,
-                price,
-                discountType,
-                discountValue,
-                description,
-              status
-            };
-      
-            if (req.file) {
-              updatedData.imageBuffer = req.file.buffer;
-            }
-      
-            await this._productService.updateProduct(id, updatedData);
-      
-            res.status(HttpStatus.OK).json({
-              success: true,
-              message: Messages.PRODUCT_UPDATED_SUCCESSFULLY,
-            });
-          } catch (error: unknown) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-              success: false,
-              message:
-                error instanceof Error
-                  ? error.message
-                  : ERROR_MESSAGES.SERVER_ERROR,
-            });
-          }
-        };
-          getAllProducts = async (req: Request, res: Response) => {
+      }
+
+      if (discountType === "fixed" && discountValue > price) {
+        throw new AppError(
+          Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      if (!req.file) {
+        throw new AppError(
+          Messages.IMAGE_REQUIRED,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      const updatedData: any = {
+        productName,
+        slug,
+        category,
+        price,
+        discountType,
+        discountValue,
+        description,
+        status
+      };
+
+      if (req.file) {
+        updatedData.imageBuffer = req.file.buffer;
+      }
+
+      await this._productService.updateProduct(id, updatedData);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.PRODUCT_UPDATED_SUCCESSFULLY,
+      });
+    } catch (error: unknown) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
+  getAllProducts = async (req: Request, res: Response) => {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 6;
@@ -194,6 +194,31 @@ export class ProductController implements IProductController {
     } catch (error: unknown) {
       console.log("Get all product controller error:", error);
 
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message:
+          error instanceof Error
+            ? error.message
+            : ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
+    toggleProductStatus = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_PRODUCT_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      await this._productService.toggleProductStatus(id);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.PRODUCT_STATUS_TOGGLED,
+      });
+    } catch (error: unknown) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message:

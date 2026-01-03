@@ -5,5 +5,5 @@ export default interface IProductController {
   getProductBySlug(req: Request, res: Response): Promise<void>;
   editProduct(req: Request, res: Response): Promise<void>;
   getAllProducts(req: Request, res: Response): Promise<void>;
-//   toggleProductStatus(req: Request, res: Response): Promise<void>;
+  toggleProductStatus(req: Request, res: Response): Promise<void>;
 }

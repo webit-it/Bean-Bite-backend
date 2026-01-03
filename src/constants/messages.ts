@@ -54,5 +54,6 @@ export const Messages = {
     PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE:"Fixed discount cannot be greater than product price",
     PRODUCT_NOT_FOUND:"Product not found",
     PRODUCT_UPDATED_SUCCESSFULLY:'product updated successfully',
-    INVALID_PRODUCT_ID:'invalid product id'
+    INVALID_PRODUCT_ID:'invalid product id',
+    PRODUCT_STATUS_TOGGLED:'successfully product status toggled'
 };

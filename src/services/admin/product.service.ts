@@ -125,5 +125,14 @@ export class ProductService implements IProductServiceInteface {
       throw error;
     }
   };
-
+  getAllProducts = async (page: number, limit: number, search?: string) => {
+    const result = await this._productRepository.findAllPaginated(page, limit, search);
+    return {
+      data: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit)
+    };
+  };
 }

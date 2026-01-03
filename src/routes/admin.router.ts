@@ -47,4 +47,5 @@ router.put(
   upload.single("image"),
   productController.editProduct 
 );
+router.get("/product", productController.getAllProducts);
 export default router;

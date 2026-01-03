@@ -40,3 +40,18 @@ productName?: string;
   image?: Buffer;
   status?: boolean;
 }
+export interface PaginatedProducts{
+  data: IProduct[]; 
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface PaginatedProductsResponse {
+  data: IProduct[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+

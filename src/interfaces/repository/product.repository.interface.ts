@@ -1,5 +1,5 @@
 import { Types, UpdateQuery } from "mongoose";
-import { IProduct, IProductDocument } from "../../types/product.type";
+import { IProduct, IProductDocument, PaginatedProducts } from "../../types/product.type";
 
 
 export default interface IProductRepository{
@@ -13,10 +13,10 @@ export default interface IProductRepository{
     
       findAll(): Promise<IProductDocument[]>;
       findById(id: string): Promise<IProduct | null>;
-//       findAllPaginated(
-//         page: number,
-//         limit: number,
-//         search?: string
-//       ): Promise<PaginatedCategories>;
+      findAllPaginated(
+        page: number,
+        limit: number,
+        search?: string
+      ): Promise<PaginatedProducts>;
     
 }

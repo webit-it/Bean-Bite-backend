@@ -9,10 +9,15 @@ export class CustomerAuthService implements ICustomerAuthService {
 
     register = async (fullName: string, phoneNumber: string, password: string) => {
         try {
+            const existingCustomer=await this._customerRepo.findByphoneNumber(phoneNumber)
+            if(existingCustomer){
+                throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_AlREADY_EXIST };
+            }
             const hashedPassword = await bcrypt.hash(password, 10);
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             const hashedOtp = await bcrypt.hash(otp, 10);
             const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+            console.log(`OTP for ${phoneNumber}: ${otp}`);
             const data = {
                 fullName,
                 phoneNumber,
@@ -104,7 +109,7 @@ export class CustomerAuthService implements ICustomerAuthService {
             refreshToken,
         };
     }
-    forgotPassword = async (phoneNumber: string) => {
+    verifyCustomer = async (phoneNumber: string) => {
         try {
             const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
 

@@ -40,7 +40,7 @@ export class CustomerAuthController {
         maxAge: refreshTokenMaxAge,
       });
 
-      res.status(HttpStatus.OK).json(customer);
+      res.status(HttpStatus.OK).json({success:true,customer});
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
       const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
@@ -51,9 +51,9 @@ export class CustomerAuthController {
   };
 
   login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { phoneNumber, password } = req.body;
     try {
-      const { user, token, refreshToken } = await this._customerAuthService.Login(email, password);
+      const { user, token, refreshToken } = await this._customerAuthService.Login(phoneNumber, password);
 
       res.cookie("access_token", token, {
         httpOnly: true,
@@ -69,7 +69,7 @@ export class CustomerAuthController {
         maxAge: refreshTokenMaxAge,
       });
 
-      res.status(HttpStatus.OK).json(user);
+      res.status(HttpStatus.OK).json({success:true,user});
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
       const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
@@ -80,10 +80,11 @@ export class CustomerAuthController {
   };
 
   verifyOtp = async (req: Request, res: Response) => {
-    const { email, otp } = req.body;
+    const { phoneNumber, otp } = req.body;
     try {
-      const { customer, message } = await this._customerAuthService.verifyOtp(email, otp);
+      const { customer, message } = await this._customerAuthService.verifyOtp(phoneNumber, otp);
       res.status(HttpStatus.OK).json({
+        success:true,
         message,
         user: {
           _id: customer._id,
@@ -102,10 +103,10 @@ export class CustomerAuthController {
   };
 
   resendOtp = async (req: Request, res: Response) => {
-    const { email } = req.body;
+    const { phoneNumber } = req.body;
     try {
-      const message = await this._customerAuthService.resendOtp(email);
-      res.status(HttpStatus.OK).json({ message });
+      const message = await this._customerAuthService.resendOtp(phoneNumber);
+      res.status(HttpStatus.OK).json({success:true, message });
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
       const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
@@ -125,17 +126,17 @@ export class CustomerAuthController {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
 
-      res.status(HttpStatus.OK).json({ message: Messages.LOGOUT_SUCCESS });
+      res.status(HttpStatus.OK).json({ success:true,message: Messages.LOGOUT_SUCCESS });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : Messages.LOGOUT_FAILED;
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message });
     }
   };
 
-  forgetPassword = async (req: Request, res: Response) => {
-    const { email } = req.body;
+  verifyCustomer = async (req: Request, res: Response) => {
+    const { phoneNumber } = req.body;
     try {
-      const customer = await this._customerAuthService.forgotPassword(email);
+      const customer = await this._customerAuthService.verifyCustomer(phoneNumber);
       res.status(HttpStatus.OK).json({ success: true, message: "Successfully Completed", customer });
     } catch (error: unknown) {
       const serviceError = error as IServiceError;

@@ -27,5 +27,5 @@ export interface ICustomerAuthService {
         token: string;
         refreshToken: string;
     }>;
-    forgotPassword(phoneNumber: string): Promise<ICustomer>;
+    verifyCustomer(phoneNumber: string): Promise<ICustomer>;
 }

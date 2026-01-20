@@ -17,6 +17,7 @@ export const Messages = {
     PROFILE_UPDATED_SUCCESSFULLY:"Profile Updated Successfully",
     PASSWORD_DO_NOT_MATCH:"Password Do Not Match",
     ACCOUNT_BLOCKED:"You Account is Blocked",
+    CUSTOMER_AlREADY_EXIST:"Customer already exist",
     PRODUCT_AlREADY_EXIST:"Product already exist",
     
     NOTIFICATION_NOT_FOUND: "Notification not found.",

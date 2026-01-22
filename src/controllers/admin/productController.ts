@@ -15,7 +15,6 @@ export class ProductController implements IProductController {
   create = async (req: Request, res: Response) => {
     try {
       const { productName, description, slug, category, discountType } = req.body;
-      console.log(req.body)
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
       if (!productName || !description) {
@@ -29,8 +28,6 @@ export class ProductController implements IProductController {
           Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
           HttpStatus.BAD_REQUEST
         );
-
-
       }
 
       if (discountType === "fixed" && discountValue > price) {
@@ -75,7 +72,6 @@ export class ProductController implements IProductController {
   getProductBySlug = async (req: Request, res: Response) => {
     try {
       const { slug } = req.params;
-      console.log("controller slug:", slug);
 
       const product = await this._productService.getProductForEdit(slug);
 
@@ -86,10 +82,7 @@ export class ProductController implements IProductController {
     } catch (error: unknown) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
+        message: error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR,
       });
     }
   };
@@ -203,7 +196,7 @@ export class ProductController implements IProductController {
       });
     }
   };
-    toggleProductStatus = async (req: Request, res: Response) => {
+  toggleProductStatus = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
       if (!Types.ObjectId.isValid(id)) {

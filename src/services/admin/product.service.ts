@@ -135,12 +135,12 @@ export class ProductService implements IProductServiceInteface {
       totalPages: Math.ceil(result.total / result.limit)
     };
   };
-    toggleProductStatus = async (id: string) => {
+  toggleProductStatus = async (id: string) => {
     try {
       const product = await this._productRepository.findById(id);
 
       if (!product) {
-          throw new AppError(
+        throw new AppError(
           Messages.PRODUCT_NOT_FOUND,
           HttpStatus.NOT_FOUND
         );
@@ -151,7 +151,7 @@ export class ProductService implements IProductServiceInteface {
       });
 
       if (!updated) {
-         throw new AppError(
+        throw new AppError(
           Messages.UPDATE_FAILED,
           HttpStatus.NOT_FOUND
         );

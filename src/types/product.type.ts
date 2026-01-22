@@ -29,7 +29,7 @@ export interface CreateProductDTO {
   discountValue?: number;
 }
 export interface UpdateProductDTO {
-productName?: string;
+  productName?: string;
   slug?: string;
   description?: string;
   category?: mongoose.Types.ObjectId;
@@ -40,8 +40,8 @@ productName?: string;
   image?: Buffer;
   status?: boolean;
 }
-export interface PaginatedProducts{
-  data: IProduct[]; 
+export interface PaginatedProducts {
+  data: IProduct[];
   total: number;
   page: number;
   limit: number;

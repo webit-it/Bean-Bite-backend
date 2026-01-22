@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import IProductRepository from "../interfaces/repository/product.repository.interface";
 import ProductModel from "../models/product.model";
-import { IProductDocument } from "../types/product.type";
+import { IProductDocument, ProductSearchQuery } from "../types/product.type";
 import { BaseRepository } from "./base.reposiory";
 
-
-export class ProductRepository extends BaseRepository<IProductDocument> implements IProductRepository {
+export class ProductRepository
+  extends BaseRepository<IProductDocument>
+  implements IProductRepository {
   constructor() {
     super(ProductModel);
   }
@@ -25,8 +26,7 @@ export class ProductRepository extends BaseRepository<IProductDocument> implemen
     category?: string
   ) {
     const skip = (page - 1) * limit;
-
-    const query: mongoose.QueryFilter<IProductDocument> = {};
+    const query: ProductSearchQuery = {};
 
     if (search) {
       query.$or = [
@@ -37,8 +37,13 @@ export class ProductRepository extends BaseRepository<IProductDocument> implemen
     }
 
     if (category) {
+      if (!mongoose.Types.ObjectId.isValid(category)) {
+        return { data: [], total: 0, page, limit };
+      }
       query.category = new mongoose.Types.ObjectId(category);
     }
+
+
 
     const [data, total] = await Promise.all([
       this.model
@@ -54,5 +59,4 @@ export class ProductRepository extends BaseRepository<IProductDocument> implemen
 
     return { data, total, page, limit };
   }
-
 }

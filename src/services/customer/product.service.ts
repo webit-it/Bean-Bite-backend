@@ -5,20 +5,32 @@ import { IProductService } from "../../interfaces/service/customer/customer.prod
 import AppError from "../../utils/AppError";
 
 export class ProductService implements IProductService{
-    constructor(private _productRepo:IProductRepository){}
-    getProducts=async(page:number,limit:number,search:string,category:string)=>{
-       try {
-           const result=await this._productRepo.findAllPaginated(page,limit,search,category)
-            const totalPages = Math.ceil(result.total / limit);
-           return {products:result.data,page,totalPages,limit}
-       } catch (error) {
-        console.log("Error get products",error)
-        throw error
-       }
-    }
+  constructor(private _productRepository:IProductRepository){}
+  getProducts = async (
+  page: number,
+  limit: number,
+  search?: string,
+  category?: string
+) => {
+  const result = await this._productRepository.findAllPaginated(
+    page,
+    limit,
+    search,
+    category
+  );
+
+  return {
+    data: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: Math.ceil(result.total / result.limit),
+  };
+};
+
     getProductDetails = async (slug: string) => {
         try {
-          const product = await this._productRepo.findBySlug(slug);
+          const product = await this._productRepository.findBySlug(slug);
     
           if (!product) {
             throw new AppError(

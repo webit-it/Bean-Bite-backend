@@ -10,20 +10,14 @@ import { CategoryService } from "../services/admin/category.service";
 import { CustomerAuthRepository } from "../repositories/customer.auth.repository";
 import { AdminAuthService } from "../services/admin/auth.admin.service";
 import { AdminAuthController } from "../controllers/admin/authController";
+import { CustomerService } from "../services/admin/customer.service";
+import { CustomerController } from "../controllers/admin/customerController";
 const router = Router();
 
 const categoryRepository= new CategoryRepository()
 const categoryService= new CategoryService(categoryRepository)
 const categoryController=new CategoryController(categoryService)
 
-
-const productRepository= new ProductRepository()
-const productService=new ProductService(productRepository)
-const productController=new ProductController(productService)
-
-const adminAuthRepository=new CustomerAuthRepository()
-const adminAuthService=new AdminAuthService(adminAuthRepository)
-const adminAuthController=new AdminAuthController(adminAuthService)
 router.post(
   "/category",
   upload.single("image"),
@@ -41,6 +35,10 @@ router.patch(
   categoryController.toggleCategoryStatus
 );
 
+
+const productRepository= new ProductRepository()
+const productService=new ProductService(productRepository)
+const productController=new ProductController(productService)
 router.post(
   "/product",
   upload.single("image"),
@@ -58,6 +56,19 @@ router.patch(
   productController.toggleProductStatus
 );
 
+const adminAuthRepository=new CustomerAuthRepository()
+const adminAuthService=new AdminAuthService(adminAuthRepository)
+const adminAuthController=new AdminAuthController(adminAuthService)
 router.route("/login").post(adminAuthController.login);
+
+
+const customerRepository=new CustomerAuthRepository()
+const customerService=new CustomerService(customerRepository)
+const customerController=new CustomerController(customerService)
+router.get("/customer", customerController.getAllUsers);
+router.patch(
+  "/customer/:id/status/change",
+  customerController.toggleCustomerStatus
+);
 
 export default router;

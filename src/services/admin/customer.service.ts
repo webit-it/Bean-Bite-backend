@@ -1,0 +1,49 @@
+import HttpStatus from "../../constants/httpsStatusCode";
+import { Messages } from "../../constants/messages";
+import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
+import ICustomerServiceInterface from "../../interfaces/service/admin/customer.service.interface";
+import AppError from "../../utils/AppError";
+
+
+export class CustomerService implements ICustomerServiceInterface {
+  constructor(private _customerRepository: ICustomerAuthRepo) { }
+
+  getAllCustomers = async (page: number, limit: number, search?: string) => {
+    const result = await this._customerRepository.findAllPaginated(page, limit, search);
+    return {
+      data: result.data,
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / result.limit)
+    };
+  };
+  toggleCustomerStatus = async (id: string) => {
+    try {
+      const user = await this._customerRepository.findById(id);
+
+      if (!user) {
+        throw new AppError(
+          Messages.CUSTOMER_NOT_FOUND,
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      const updated = await this._customerRepository.update(id, {
+        isActive: !user.isActive,
+      });
+
+      if (!updated) {
+        throw new AppError(
+          Messages.UPDATE_FAILED,
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      return updated;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+}

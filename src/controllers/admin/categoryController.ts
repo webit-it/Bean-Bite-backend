@@ -141,7 +141,6 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-
   toggleCategoryStatus = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

@@ -56,5 +56,9 @@ export const Messages = {
     PRODUCT_NOT_FOUND:"Product not found",
     PRODUCT_UPDATED_SUCCESSFULLY:'product updated successfully',
     INVALID_PRODUCT_ID:'invalid product id',
-    PRODUCT_STATUS_TOGGLED:'successfully product status toggled'
+    PRODUCT_STATUS_TOGGLED:'successfully product status toggled',
+
+    //customer
+    INVALID_CUSTOMER_ID:'invalied customer id',
+    CUSTOMER_STATUS_TOGGLED:'successfully Customer status toggled',
 };

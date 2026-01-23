@@ -7,6 +7,9 @@ import { ProductService } from "../services/admin/product.service";
 import { ProductRepository } from "../repositories/product.repositry";
 import { CategoryController } from "../controllers/admin/categoryController";
 import { CategoryService } from "../services/admin/category.service";
+import { CustomerAuthRepository } from "../repositories/customer.auth.repository";
+import { AdminAuthService } from "../services/admin/auth.admin.service";
+import { AdminAuthController } from "../controllers/admin/authController";
 const router = Router();
 
 const categoryRepository= new CategoryRepository()
@@ -18,7 +21,9 @@ const productRepository= new ProductRepository()
 const productService=new ProductService(productRepository)
 const productController=new ProductController(productService)
 
-
+const adminAuthRepository=new CustomerAuthRepository()
+const adminAuthService=new AdminAuthService(adminAuthRepository)
+const adminAuthController=new AdminAuthController(adminAuthService)
 router.post(
   "/category",
   upload.single("image"),
@@ -52,4 +57,7 @@ router.patch(
   "/product/:id/status/change",
   productController.toggleProductStatus
 );
+
+router.route("/login").post(adminAuthController.login);
+
 export default router;

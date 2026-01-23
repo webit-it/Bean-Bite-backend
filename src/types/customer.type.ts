@@ -9,3 +9,8 @@ export interface ICustomer {
   otpExpires?: Date|null;
 }
 export interface ICustomerDocument extends ICustomer, Document {}
+
+export interface AdminLoginDTO {
+  phoneNumber: string;
+  password: string;
+}

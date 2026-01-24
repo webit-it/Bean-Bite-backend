@@ -1,5 +1,14 @@
 import mongoose, { HydratedDocument } from "mongoose";
 
+export type ProductSearchQuery = {
+  $or?: Array<{
+    productName?: { $regex: string; $options: string };
+    slug?: { $regex: string; $options: string };
+    description?: { $regex: string; $options: string };
+  }>;
+  category?: mongoose.Types.ObjectId;
+};
+
 export interface IProduct {
   productName: string;
   slug: string;
@@ -17,7 +26,6 @@ export interface IProduct {
 
 export type IProductDocument = HydratedDocument<IProduct>;
 
-
 export interface CreateProductDTO {
   productName: string;
   slug: string;
@@ -28,6 +36,7 @@ export interface CreateProductDTO {
   discountType?: "percentage" | "fixed";
   discountValue?: number;
 }
+
 export interface UpdateProductDTO {
   productName?: string;
   slug?: string;
@@ -40,6 +49,14 @@ export interface UpdateProductDTO {
   image?: Buffer;
   status?: boolean;
 }
+
+export interface GetProductsDTO {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+}
+
 export interface PaginatedProducts {
   data: IProduct[];
   total: number;
@@ -54,4 +71,3 @@ export interface PaginatedProductsResponse {
   limit: number;
   totalPages: number;
 }
-

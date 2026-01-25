@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { generateToken } from "../../utils/jwt";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";

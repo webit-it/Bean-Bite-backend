@@ -27,26 +27,26 @@ export class ProfileController {
             });
         }
     }
-    editProfile = async (req: AuthenticatedRequest, res: Response) => {
-        const customerId = req.user?.id;
-        const {fullName,phoneNumber}=req.body
-        console.log(req.body)
-        if (!customerId) {
-            return res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS});
-        }
-        try {
-            const customer=await this._profileService.editProfile(customerId,fullName,phoneNumber)
-            res.status(HttpStatus.CREATED).json({
-                success: true,
-                customer
-            });
-        } catch (error: unknown) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                success: false,
-                message: error instanceof Error
-                    ? error.message
-                    : ERROR_MESSAGES.SERVER_ERROR,
-            });
-        }
-    }
+    // editProfile = async (req: AuthenticatedRequest, res: Response) => {
+    //     const customerId = req.user?.id;
+    //     const {fullName,phoneNumber}=req.body
+    //     console.log(req.body)
+    //     if (!customerId) {
+    //         return res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS});
+    //     }
+    //     try {
+    //         const customer=await this._profileService.editProfile(customerId,fullName,phoneNumber)
+    //         res.status(HttpStatus.CREATED).json({
+    //             success: true,
+    //             customer
+    //         });
+    //     } catch (error: unknown) {
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+    //             success: false,
+    //             message: error instanceof Error
+    //                 ? error.message
+    //                 : ERROR_MESSAGES.SERVER_ERROR,
+    //         });
+    //     }
+    // }
 }

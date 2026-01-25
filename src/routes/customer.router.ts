@@ -31,6 +31,5 @@ router.get("/product", productController.getProducts);
 router
   .route("/profile")
   .get(verifyToken, profileController.getProfile)
-  .put(verifyToken, profileController.editProfile);
 
 export default router 

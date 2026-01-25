@@ -11,7 +11,7 @@ export class CustomerAuthRepository extends BaseRepository<ICustomerDocument> im
     async findByphoneNumber(phoneNumber:string){
         return await Customer.findOne({phoneNumber})
     }
-    async saveCustomer(data:ICustomerDocument){
+    async saveCustomer(data:ICustomerDocument){ 
         return await data.save()
     }
 
@@ -29,7 +29,7 @@ export class CustomerAuthRepository extends BaseRepository<ICustomerDocument> im
         const [data, total] = await Promise.all([
           this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
           this.model.countDocuments(query)
-        ]);
+        ]); 
         return {
           data,
           total,

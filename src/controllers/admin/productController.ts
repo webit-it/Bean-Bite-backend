@@ -68,7 +68,7 @@ export class ProductController implements IProductController {
             : ERROR_MESSAGES.SERVER_ERROR,
       });
     }
-  }
+  };
   getProductBySlug = async (req: Request, res: Response) => {
     try {
       const { slug } = req.params;

@@ -8,9 +8,7 @@ import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 
 export class CategoryController implements ICategoryController {
-  constructor(private _categoryService: ICategoryServiceInterface) {
-
-  }
+  constructor(private _categoryService: ICategoryServiceInterface) {}
   create = async (req: Request, res: Response) => {
     try {
       const { categoryName, description, slug } = req.body;
@@ -141,7 +139,6 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-
   toggleCategoryStatus = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;

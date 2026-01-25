@@ -22,6 +22,7 @@ export class CustomerAuthService implements ICustomerAuthService {
                 fullName,
                 phoneNumber,
                 password: hashedPassword, 
+                isActive:true,
                 isAdmin: false,
                 otp: hashedOtp,
                 otpExpires

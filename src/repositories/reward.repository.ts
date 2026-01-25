@@ -10,10 +10,10 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
     async findByLevel(level: number) {
         return Reward.findOne({ level });
     }
-    async updateSlotCount(level: number, slotCount: number) {
+    async updateSlotCount(level: number,  data: Partial<{ rewardName: string; slotCount: number }>) {
         return Reward.findOneAndUpdate(
             { level },
-            { $set: { slotCount } },
+            { $set: data },
             { new: true }
         );
     }

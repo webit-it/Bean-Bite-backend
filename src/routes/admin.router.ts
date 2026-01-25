@@ -12,6 +12,10 @@ import { AdminAuthService } from "../services/admin/auth.admin.service";
 import { AdminAuthController } from "../controllers/admin/authController";
 import { CustomerService } from "../services/admin/customer.service";
 import { CustomerController } from "../controllers/admin/customerController";
+import { RewardRepository } from "../repositories/reward.repository";
+import { RewardService } from "../services/admin/reward.service";
+import { RewardController } from "../controllers/admin/rewardController";
+import adminOnly from "../middleware/admin.middleware";
 const router = Router();
 
 const categoryRepository= new CategoryRepository()
@@ -61,6 +65,12 @@ const adminAuthService=new AdminAuthService(adminAuthRepository)
 const adminAuthController=new AdminAuthController(adminAuthService)
 router.route("/login").post(adminAuthController.login);
 
+const rewardRepo=new RewardRepository()
+const rewardService=new RewardService(rewardRepo)
+const rewardController=new RewardController(rewardService)
+
+router.route("/reward/:level").get(rewardController.getRewardByLevel).put(rewardController.updateLevel);
+router.get("/reward",rewardController.getRewards)
 
 const customerRepository=new CustomerAuthRepository()
 const customerService=new CustomerService(customerRepository)
@@ -70,5 +80,7 @@ router.patch(
   "/customer/:id/status/change",
   customerController.toggleCustomerStatus
 );
+
+
 
 export default router;

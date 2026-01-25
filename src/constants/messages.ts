@@ -19,9 +19,11 @@ export const Messages = {
     ACCOUNT_BLOCKED:"You Account is Blocked",
     CUSTOMER_AlREADY_EXIST:"Customer already exist",
     PRODUCT_AlREADY_EXIST:"Product already exist",
-    
-    NOTIFICATION_NOT_FOUND: "Notification not found.",
-    
+    INVALID_REWARD_LEVEL:"Invalid reward level",
+    INVALID_SLOT_COUNT: "Slot count must be between 4 and 6",
+    REWARD_CANNOT_BE_EMPTY: "Reward cannnot be empty",
+
+    NOTIFICATION_NOT_FOUND: "Notification not found.",    
     DATA_NOT_FOUND: "Data not found.",
     CREATE_SUCCESS: "Created successfully.",
     UPDATE_SUCCESS: "Updated successfully.",

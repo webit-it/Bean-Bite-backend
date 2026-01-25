@@ -11,3 +11,14 @@ export interface IReward {
 }
 
 export type IRewardDocument = HydratedDocument<IReward>;
+
+
+export interface RewardResponseDto {
+  rewardName: string;
+  slug: string;
+  level: number;
+  slotCount: number;
+  rewardProductIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}

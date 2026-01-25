@@ -42,8 +42,7 @@ export class CustomerController implements ICustomerController{
             : ERROR_MESSAGES.SERVER_ERROR,
       });
     }
-  }
-
+  };
   toggleCustomerStatus=async(req: Request, res: Response)=>{
      try {
       const { id } = req.params;
@@ -68,5 +67,5 @@ export class CustomerController implements ICustomerController{
             : ERROR_MESSAGES.SERVER_ERROR,
       });
     }
-  }
+  };
 }

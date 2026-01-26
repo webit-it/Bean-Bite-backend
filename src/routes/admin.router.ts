@@ -34,11 +34,6 @@ router.put(
   upload.single("image"),
   categoryController.editCategory
 );
-router.patch(
-  "/category/:id/status/change",
-  categoryController.toggleCategoryStatus
-);
-
 
 const productRepository= new ProductRepository()
 const productService=new ProductService(productRepository)

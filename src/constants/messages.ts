@@ -43,24 +43,26 @@ export const Messages = {
     NO_FILE_UPLOADED: "No file uploaded",
 
     //category
-    INVALID_CATEGORY_ID:'invalid category id',
-    CATEGORY_STATUS_TOGGLED:'successfully status toggled',
+    INVALID_CATEGORY_ID:'Invalid category id',
+    CATEGORY_STATUS_TOGGLED:'Successfully category status changed',
     CATEGORY_NOT_FOUND:"Catgory not found",
     CATEGORY_AlREADY_EXIST:"Catgory already exist",
     CATEGORY_UPDATED_SUCCESSFULLY:'Category updated successfully',
     CATEGORY_CREATED_SUCCESSFULLY:'Category created successfully',
-    CATEGORY_NAME_AND_DESCRIPTION_REQUIRED:"category name and description are required",
+    CATEGORY_DESCRIPTION_REQUIRED:"Category  description is required",
+    CATEGORY_NAME_REQUIRED:"Category name  is required",
+    CATEGORY_SLUG_REQUIRED:"Category slug is required",
     
     //product
     PRODUCT_NAME_AND_DESCRIPTION_REQUIRED:"Product name and description are required",
     PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100:"Discount percentage cannot be more than 100",
     PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE:"Fixed discount cannot be greater than product price",
     PRODUCT_NOT_FOUND:"Product not found",
-    PRODUCT_UPDATED_SUCCESSFULLY:'product updated successfully',
-    INVALID_PRODUCT_ID:'invalid product id',
-    PRODUCT_STATUS_TOGGLED:'successfully product status toggled',
+    PRODUCT_UPDATED_SUCCESSFULLY:'Product updated successfully',
+    INVALID_PRODUCT_ID:'Invalid product id',
+    PRODUCT_STATUS_TOGGLED:'Successfully product status changed',
 
     //customer
     INVALID_CUSTOMER_ID:'invalied customer id',
-    CUSTOMER_STATUS_TOGGLED:'successfully Customer status toggled',
+    CUSTOMER_STATUS_TOGGLED:'Successfully Customer status changed',
 };

@@ -5,5 +5,4 @@ export default interface ICategoryController {
   getCategoryBySlug(req: Request, res: Response): Promise<void>;
   editCategory(req: Request, res: Response): Promise<void>;
 getAllCategories(req: Request, res: Response): Promise<void>;
-  toggleCategoryStatus(req: Request, res: Response): Promise<void>;
 }

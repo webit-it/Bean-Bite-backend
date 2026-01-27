@@ -17,9 +17,9 @@ export class ProductController implements IProductController {
       const { productName, description, slug, category, discountType,status } = req.body;
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
-      if (!productName || !description) {
+      if (!productName || !description||!slug) {
         throw new AppError(
-          Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
+          Messages.MISSING_FIELDS,
           HttpStatus.BAD_REQUEST
         );
       }
@@ -106,9 +106,9 @@ export class ProductController implements IProductController {
       }
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
-      if (!productName || !description) {
+      if (!productName || !description||!slug) {
         throw new AppError(
-          Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
+          Messages.MISSING_FIELDS,
           HttpStatus.BAD_REQUEST
         );
       }
@@ -117,8 +117,6 @@ export class ProductController implements IProductController {
           Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
           HttpStatus.BAD_REQUEST
         );
-
-
       }
 
       if (discountType === "fixed" && discountValue > price) {

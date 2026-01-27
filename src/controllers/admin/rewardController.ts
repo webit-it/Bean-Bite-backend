@@ -41,12 +41,37 @@ export class RewardController {
         }
     }
 
-    updateLevel = async (req: Request, res: Response) => {
+    updateRewardByLevel = async (req: Request, res: Response) => {
         try {
             const level = Number(req.params.level);
-            const { slotCount, rewardName } = req.body;
+            const { slotCount, rewardName, rewardProductIds } = req.body;
 
-            const reward = await this._rewardService.updateLevel(level, slotCount, rewardName);
+            const reward = await this._rewardService.updateRewardByLevel(level, slotCount, rewardName,rewardProductIds);
+
+            return res.status(HttpStatus.CREATED).json({
+                success: true,
+                reward
+            });
+        } catch (error: unknown) {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error instanceof Error
+                    ? error.message
+                    : ERROR_MESSAGES.SERVER_ERROR,
+            });
+        }
+    }
+    addReward = async (req: Request, res: Response) => {
+        try {
+            const {
+                rewardName,
+                slug,
+                level,
+                slotCount,
+                rewardProductIds = [],
+            } = req.body;
+
+            const reward = await this._rewardService.addReward(rewardName,slug,level,slotCount,rewardProductIds);
 
             return res.status(HttpStatus.CREATED).json({
                 success: true,

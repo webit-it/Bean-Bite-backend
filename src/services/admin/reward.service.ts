@@ -1,9 +1,10 @@
+import { Types } from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import { IRewardRepository } from "../../interfaces/repository/reward.repository.interface";
 import { IRewardService } from "../../interfaces/service/admin/reward.service.interface";
 import { toRewardResponseDto, toRewardResponseDtoArray } from "../../mappers/reward.mapper";
-import { RewardResponseDto } from "../../types/reward.type";
+import { IReward, RewardResponseDto } from "../../types/reward.type";
 import AppError from "../../utils/AppError";
 
 export class RewardService implements IRewardService {
@@ -35,33 +36,40 @@ export class RewardService implements IRewardService {
             throw error
         }
     };
-    updateLevel = async (level: number, slotCount: number, rewardName: string): Promise<RewardResponseDto> => {
+    updateRewardByLevel = async (level: number, slotCount?: number, rewardName?: string, rewardProductIds?: string[]): Promise<RewardResponseDto> => {
         try {
             if (![1, 2, 3].includes(level)) {
                 throw new AppError(
                     Messages.INVALID_REWARD_LEVEL,
-                    HttpStatus.NOT_FOUND
+                    HttpStatus.BAD_REQUEST
                 );
             }
-            if (slotCount < 4 || slotCount > 6) {
+
+            if (slotCount !== undefined && (slotCount < 4 || slotCount > 6)) {
                 throw new AppError(
                     Messages.INVALID_SLOT_COUNT,
-                    HttpStatus.NOT_FOUND
+                    HttpStatus.BAD_REQUEST
                 );
             }
 
-            if (rewardName !== undefined &&rewardName.trim() === "") {
-                 throw new AppError(
+            if (rewardName !== undefined && rewardName.trim() === "") {
+                throw new AppError(
                     Messages.REWARD_CANNOT_BE_EMPTY,
-                    HttpStatus.NOT_FOUND
+                    HttpStatus.BAD_REQUEST
                 );
             }
 
-            const data={
-                slotCount,
-                rewardName
+            const updateData:Partial<IReward>= {};
+
+            if (slotCount !== undefined) updateData.slotCount = slotCount;
+            if (rewardName !== undefined) updateData.rewardName = rewardName;
+
+            if (rewardProductIds) {
+                updateData.rewardProductIds = rewardProductIds.map(
+                    (id) => new Types.ObjectId(id)
+                );
             }
-            const updatedReward = await this._rewardRepo.updateSlotCount(level, data);
+            const updatedReward = await this._rewardRepo.updateSlotCount(level, updateData);
             if (!updatedReward) {
                 throw new AppError(
                     Messages.INVALID_REWARD_LEVEL,
@@ -71,6 +79,37 @@ export class RewardService implements IRewardService {
             return toRewardResponseDto(updatedReward);
         } catch (error) {
             console.error("Error in updateSlotCount:", error);
+            throw error
+        }
+    };
+    addReward = async ( rewardName: string,slug: string,level: number, slotCount: number, rewardProductIds: string[]): Promise<RewardResponseDto> => {
+        try {
+            if (!rewardName || !slug || !level || !slotCount) {
+                throw new AppError(
+                    Messages.MISSING_FIELDS,
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            const data = {
+                slotCount,
+                rewardName,
+                slug,
+                level,
+                rewardProductIds: rewardProductIds.map(
+                    (id: string) => new Types.ObjectId(id)
+                ),
+            }
+            const createdReward = await this._rewardRepo.create(data);
+            if (!createdReward) {
+                throw new AppError(
+                    Messages.INVALID_REWARD_LEVEL,
+                    HttpStatus.NOT_FOUND
+                );
+            }
+            return toRewardResponseDto(createdReward);
+        } catch (error) {
+            console.error("Error in create reward:", error);
             throw error
         }
     };

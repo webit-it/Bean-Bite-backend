@@ -1,11 +1,11 @@
-import { HydratedDocument, ObjectId } from "mongoose";
+import { HydratedDocument, ObjectId, Types } from "mongoose";
 
 export interface IReward {
   rewardName: string;
   slug: string;
   level: number;
   slotCount: number;
-  rewardProductIds: ObjectId[];
+  rewardProductIds: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

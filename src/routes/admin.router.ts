@@ -69,8 +69,8 @@ const rewardRepo=new RewardRepository()
 const rewardService=new RewardService(rewardRepo)
 const rewardController=new RewardController(rewardService)
 
-router.route("/reward/:level").get(rewardController.getRewardByLevel).put(rewardController.updateLevel);
-router.get("/reward",rewardController.getRewards)
+router.route("/reward/:level").get(rewardController.getRewardByLevel).put(rewardController.updateRewardByLevel);
+router.route("/reward").get(rewardController.getRewards).post(rewardController.addReward)
 
 const customerRepository=new CustomerAuthRepository()
 const customerService=new CustomerService(customerRepository)

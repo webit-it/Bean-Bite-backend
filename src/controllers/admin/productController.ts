@@ -14,12 +14,12 @@ export class ProductController implements IProductController {
 
   create = async (req: Request, res: Response) => {
     try {
-      const { productName, description, slug, category, discountType } = req.body;
+      const { productName, description, slug, category, discountType,status } = req.body;
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
-      if (!productName || !description) {
+      if (!productName || !description||!slug) {
         throw new AppError(
-          Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
+          Messages.MISSING_FIELDS,
           HttpStatus.BAD_REQUEST
         );
       }
@@ -44,7 +44,7 @@ export class ProductController implements IProductController {
         );
       }
 
-      await this._productService.createProduct({
+      const product=await this._productService.createProduct({
         productName,
         slug,
         category,
@@ -53,11 +53,13 @@ export class ProductController implements IProductController {
         discountValue,
         description,
         image: req.file.buffer,
+        status
       });
 
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: Messages.CREATE_SUCCESS,
+        data:product
       });
     } catch (error: unknown) {
       res.status(400).json({
@@ -73,7 +75,7 @@ export class ProductController implements IProductController {
     try {
       const { slug } = req.params;
 
-      const product = await this._productService.getProductForEdit(slug);
+      const product = await this._productService.getProductBySlug(slug);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -105,9 +107,9 @@ export class ProductController implements IProductController {
       }
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
-      if (!productName || !description) {
+      if (!productName || !description||!slug) {
         throw new AppError(
-          Messages.PRODUCT_NAME_AND_DESCRIPTION_REQUIRED,
+          Messages.MISSING_FIELDS,
           HttpStatus.BAD_REQUEST
         );
       }
@@ -116,8 +118,6 @@ export class ProductController implements IProductController {
           Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
           HttpStatus.BAD_REQUEST
         );
-
-
       }
 
       if (discountType === "fixed" && discountValue > price) {
@@ -149,11 +149,12 @@ export class ProductController implements IProductController {
         updatedData.imageBuffer = req.file.buffer;
       }
 
-      await this._productService.updateProduct(id, updatedData);
+     const updatedProduct= await this._productService.updateProduct(id, updatedData);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: Messages.PRODUCT_UPDATED_SUCCESSFULLY,
+        data:updatedProduct
       });
     } catch (error: unknown) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -196,29 +197,5 @@ export class ProductController implements IProductController {
       });
     }
   };
-  toggleProductStatus = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!Types.ObjectId.isValid(id)) {
-        throw new AppError(
-          Messages.INVALID_PRODUCT_ID,
-          HttpStatus.BAD_REQUEST
-        );
-      }
-      await this._productService.toggleProductStatus(id);
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: Messages.PRODUCT_STATUS_TOGGLED,
-      });
-    } catch (error: unknown) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
-    }
-  };
 }

@@ -1,4 +1,5 @@
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
+import { CategoryMiniDto, ICategoryPopulated } from "./category.type";
 
 export type ProductSearchQuery = {
   $or?: Array<{
@@ -12,7 +13,7 @@ export type ProductSearchQuery = {
 export interface IProduct {
   productName: string;
   slug: string;
-  category: mongoose.Types.ObjectId;
+  category: Types.ObjectId | ICategoryPopulated;
   price: number;
   discountType?: "percentage" | "fixed";
   discountValue?: number;
@@ -32,7 +33,7 @@ export interface ProductResponseDto {
   id: string;
   productName: string;
   slug: string;
-  category: mongoose.Types.ObjectId;
+  category:CategoryMiniDto;
   price: number;
   discountType?: "percentage" | "fixed";
   discountValue?: number;

@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 /* ---------------- SEARCH ---------------- */
 
@@ -86,4 +86,15 @@ export interface CategoryResponseDto {
   status: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+//this  id for product
+export interface CategoryMiniDto {
+  id: string;
+  slug: string;
+}
+
+export interface ICategoryPopulated {
+  _id: Types.ObjectId;
+  slug: string;
 }

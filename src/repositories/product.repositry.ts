@@ -7,6 +7,7 @@ import { BaseRepository } from "./base.reposiory";
 export class ProductRepository
   extends BaseRepository<IProductDocument>
   implements IProductRepository {
+
   constructor() {
     super(ProductModel);
   }
@@ -46,16 +47,15 @@ export class ProductRepository
 
 
     const [data, total] = await Promise.all([
-      this.model
-        .find(query)
-        .populate("category", "name slug")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+  this.model
+    .find(query)
+    .populate("category", "name slug")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit),
 
-      this.model.countDocuments(query),
-    ]);
+  this.model.countDocuments(query),
+]);
 
     return { data, total, page, limit };
   }

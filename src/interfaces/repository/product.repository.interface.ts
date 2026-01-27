@@ -3,13 +3,13 @@ import { IProduct, IProductDocument, PaginatedProducts } from "../../types/produ
 
 
 export default interface IProductRepository {
-  findBySlug(slug: string): Promise<IProduct | null>;
+  findBySlug(slug: string): Promise<IProductDocument | null>;
   findByName(categoryName: string): Promise<IProduct | null>;
-  create(data: Partial<IProduct>): Promise<IProduct>;
+  create(data: Partial<IProductDocument>): Promise<IProductDocument>;
   update(
     id: string | Types.ObjectId,
     data: UpdateQuery<IProduct>
-  ): Promise<IProduct | null>;
+  ): Promise<IProductDocument | null>;
 
   findAll(): Promise<IProductDocument[]>;
   findById(id: string): Promise<IProduct | null>;
@@ -18,5 +18,5 @@ export default interface IProductRepository {
     limit: number,
     search?: string,
     category?:string,
-  ): Promise<PaginatedProducts>;
+  ): Promise<PaginatedProducts<IProductDocument>>;
 }

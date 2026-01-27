@@ -14,7 +14,7 @@ export class ProductController implements IProductController {
 
   create = async (req: Request, res: Response) => {
     try {
-      const { productName, description, slug, category, discountType } = req.body;
+      const { productName, description, slug, category, discountType,status } = req.body;
       const price = Number(req.body.price);
       const discountValue = Number(req.body.discountValue);
       if (!productName || !description) {
@@ -53,6 +53,7 @@ export class ProductController implements IProductController {
         discountValue,
         description,
         image: req.file.buffer,
+        status
       });
 
       res.status(HttpStatus.CREATED).json({
@@ -73,7 +74,7 @@ export class ProductController implements IProductController {
     try {
       const { slug } = req.params;
 
-      const product = await this._productService.getProductForEdit(slug);
+      const product = await this._productService.getProductBySlug(slug);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -196,29 +197,5 @@ export class ProductController implements IProductController {
       });
     }
   };
-  toggleProductStatus = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!Types.ObjectId.isValid(id)) {
-        throw new AppError(
-          Messages.INVALID_PRODUCT_ID,
-          HttpStatus.BAD_REQUEST
-        );
-      }
-      await this._productService.toggleProductStatus(id);
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: Messages.PRODUCT_STATUS_TOGGLED,
-      });
-    } catch (error: unknown) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
-    }
-  };
 }

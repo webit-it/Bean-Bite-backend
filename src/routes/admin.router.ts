@@ -50,10 +50,6 @@ router.put(
   productController.editProduct 
 );
 router.get("/product", productController.getAllProducts);
-router.patch(
-  "/product/:id/status/change",
-  productController.toggleProductStatus
-);
 
 const adminAuthRepository=new CustomerAuthRepository()
 const adminAuthService=new AdminAuthService(adminAuthRepository)

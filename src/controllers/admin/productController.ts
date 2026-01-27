@@ -44,7 +44,7 @@ export class ProductController implements IProductController {
         );
       }
 
-      await this._productService.createProduct({
+      const product=await this._productService.createProduct({
         productName,
         slug,
         category,
@@ -59,6 +59,7 @@ export class ProductController implements IProductController {
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: Messages.CREATE_SUCCESS,
+        data:product
       });
     } catch (error: unknown) {
       res.status(400).json({
@@ -148,11 +149,12 @@ export class ProductController implements IProductController {
         updatedData.imageBuffer = req.file.buffer;
       }
 
-      await this._productService.updateProduct(id, updatedData);
+     const updatedProduct= await this._productService.updateProduct(id, updatedData);
 
       res.status(HttpStatus.OK).json({
         success: true,
         message: Messages.PRODUCT_UPDATED_SUCCESSFULLY,
+        data:updatedProduct
       });
     } catch (error: unknown) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

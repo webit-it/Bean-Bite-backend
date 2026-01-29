@@ -49,7 +49,7 @@ export class ProductRepository
     const [data, total] = await Promise.all([
   this.model
     .find(query)
-    .populate("category", "name slug")
+    .populate("category", "categoryName")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit),

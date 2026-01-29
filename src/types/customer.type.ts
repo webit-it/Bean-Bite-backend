@@ -16,6 +16,7 @@ export interface ICustomer {
   isAdmin: boolean;
   otp?: string|null;
   otpExpires?: Date|null;
+  createdAt:Date;
 }
 
 export interface ICustomerDocument extends ICustomer, Document {}
@@ -33,7 +34,7 @@ export interface PaginatedCustomers {
 }
 
 export interface PaginatedCustomerResponse {
-  data: ICustomer[];
+  data: CustomerResponseDTO[];
   total: number;
   page: number;
   limit: number;
@@ -41,4 +42,12 @@ export interface PaginatedCustomerResponse {
 }
 export interface UpdateCustomerStatusDTO {
   status: boolean;
+}
+
+export interface CustomerResponseDTO {
+  id: string;
+  fullName: string;
+  phoneNumber: string;
+  isActive: boolean;
+  createdAt: Date;
 }

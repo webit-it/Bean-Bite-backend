@@ -55,6 +55,7 @@ const adminAuthRepository=new CustomerAuthRepository()
 const adminAuthService=new AdminAuthService(adminAuthRepository)
 const adminAuthController=new AdminAuthController(adminAuthService)
 router.route("/login").post(adminAuthController.login);
+router.route("/logout").post(adminAuthController.logout);
 
 const rewardRepo=new RewardRepository()
 const rewardService=new RewardService(rewardRepo)

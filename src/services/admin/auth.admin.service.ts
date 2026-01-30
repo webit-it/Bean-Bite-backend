@@ -4,6 +4,7 @@ import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 import { IAdminAuthService } from "../../interfaces/service/admin/auth.admin.interface";
+import { CustomerMapper } from "../../mappers/customer.mapper";
 
 export class AdminAuthService implements IAdminAuthService {
   constructor(private _customerRepo: ICustomerAuthRepo) {}
@@ -42,12 +43,15 @@ export class AdminAuthService implements IAdminAuthService {
 
     const id =
       typeof user._id === "string" ? user._id : user._id.toString();
-
     const token = generateToken(id, true);
-
     return {
-      user,
+      user:CustomerMapper.toResponse(user),
       token,
+    };
+  }
+  async adminLogout() {
+    return {
+      message: "Admin logged out successfully",
     };
   }
 }

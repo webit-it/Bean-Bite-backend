@@ -12,37 +12,51 @@ export class CategoryService implements ICategoryServiceInterface {
     private _categoryRepository: ICategoryRepository
   ) { }
 
-  createCategory = async (
-    data: CreateCategoryDTO
-  ): Promise<CategoryResponseDto> => {
-    try {
-      const { categoryName, description, slug, imageBuffer,status } = data;
+ createCategory = async (
+  data: CreateCategoryDTO
+): Promise<CategoryResponseDto> => {
+  try {
+    const { categoryName, description, slug, imageBuffer, status } = data;
 
-      const existing = await this._categoryRepository.findBySlug(slug);
-      if (existing) {
-        throw new AppError(
-          Messages.CATEGORY_AlREADY_EXIST,
-          HttpStatus.NOT_FOUND
-        );
-      }
+    const existingBySlug = await this._categoryRepository.findBySlug(slug);
 
-      const imageUrl = await uploadToCloudinary(imageBuffer, "categories");
-
-      const categoryDoc = await this._categoryRepository.create({
-        categoryName,
-        description,
-        slug,
-        image: imageUrl,
-        status
-      });
-
-      return CategoryMapper.toResponse(categoryDoc);
-
-    } catch (error) {
-      console.log("Create category error :", error);
-      throw error;
+    if (existingBySlug) {
+      throw new AppError(
+        Messages.CATEGORY_AlREADY_EXIST,
+        HttpStatus.BAD_REQUEST
+      );
     }
-  };
+
+    const existingByName =await this._categoryRepository.findByName(categoryName);
+
+    if (existingByName) {
+      throw new AppError(
+        Messages.CATEGORY_AlREADY_EXIST,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const imageUrl = await uploadToCloudinary(
+      imageBuffer,
+      "categories"
+    );
+
+    const categoryDoc = await this._categoryRepository.create({
+      categoryName,
+      description,
+      slug,
+      image: imageUrl,
+      status,
+    });
+
+    return CategoryMapper.toResponse(categoryDoc);
+
+  } catch (error) {
+    console.log("Create category error:", error);
+    throw error;
+  }
+};
+
  getCategoryBySlug = async (slug: string): Promise<CategoryResponseDto> => {
   try {
     const categoryDoc = await this._categoryRepository.findBySlug(slug);
@@ -68,10 +82,22 @@ updateCategory = async (
 ): Promise<CategoryResponseDto> => {
   try {
     if (data.categoryName) {
-      const existingCategory =
+      const existingByName =
         await this._categoryRepository.findByName(data.categoryName);
 
-      if (existingCategory && existingCategory._id.toString() !== id) {
+      if (existingByName && existingByName._id.toString() !== id) {
+        throw new AppError(
+          Messages.CATEGORY_AlREADY_EXIST,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+    }
+
+    if (data.slug) {
+      const existingBySlug =
+        await this._categoryRepository.findBySlug(data.slug);
+
+      if (existingBySlug && existingBySlug._id.toString() !== id) {
         throw new AppError(
           Messages.CATEGORY_AlREADY_EXIST,
           HttpStatus.BAD_REQUEST
@@ -94,7 +120,8 @@ updateCategory = async (
       updateData.image = imageUrl;
     }
 
-    const updatedDoc = await this._categoryRepository.update(id, updateData);
+    const updatedDoc =
+      await this._categoryRepository.update(id, updateData);
 
     if (!updatedDoc) {
       throw new AppError(
@@ -103,15 +130,12 @@ updateCategory = async (
       );
     }
 
-    // ✅ map DB document → response DTO
     return CategoryMapper.toResponse(updatedDoc);
 
   } catch (error) {
-    console.log("Update category error:", error);
     throw error;
   }
 };
-
 
  getAllCategories = async (
   page: number,

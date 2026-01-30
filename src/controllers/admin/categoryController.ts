@@ -82,6 +82,12 @@ create = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { categoryName, description, status, slug } = req.body;
+       if (!categoryName || !description || !slug) {
+      throw new AppError(
+        Messages.MISSING_FIELDS,
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     if (!Types.ObjectId.isValid(id)) {
       throw new AppError(

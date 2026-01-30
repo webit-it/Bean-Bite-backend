@@ -7,6 +7,7 @@ import logger from "./logger";
 import connectDB from "./config/db";
 import customerRouter from "./routes/customer.router"
 import adminRouter from "./routes/admin.router"
+import qrRouter from "./routes/qr.router"
 
 
 const app=express()
@@ -25,6 +26,7 @@ app.use(cors({
 
 app.use("/api/customer",customerRouter)
 app.use("/api/admin",adminRouter)
+app.use("/api/qr",qrRouter)
 
 const PORT = process.env.PORT||3001 ;
 

@@ -128,12 +128,12 @@ export class ProductController implements IProductController {
         );
       }
 
-      if (!req.file) {
-        throw new AppError(
-          Messages.IMAGE_REQUIRED,
-          HttpStatus.BAD_REQUEST
-        );
-      }
+      // if (!req.file) {
+      //   throw new AppError(
+      //     Messages.IMAGE_REQUIRED,
+      //     HttpStatus.BAD_REQUEST
+      //   );
+      // }
 
       const updatedData: UpdateProductDTO = {
         productName,

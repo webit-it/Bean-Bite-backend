@@ -6,6 +6,7 @@ import AppError from "../../utils/AppError";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Types } from "mongoose";
+import { UpdateProductDTO } from "../../types/product.type";
 
 
 
@@ -134,7 +135,7 @@ export class ProductController implements IProductController {
         );
       }
 
-      const updatedData: any = {
+      const updatedData: UpdateProductDTO = {
         productName,
         slug,
         category,
@@ -146,7 +147,7 @@ export class ProductController implements IProductController {
       };
 
       if (req.file) {
-        updatedData.imageBuffer = req.file.buffer;
+        updatedData.image= req.file.buffer;
       }
 
      const updatedProduct= await this._productService.updateProduct(id, updatedData);

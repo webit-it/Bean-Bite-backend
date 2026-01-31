@@ -23,6 +23,10 @@ export const Messages = {
     INVALID_SLOT_COUNT: "Slot count must be between 4 and 6",
     REWARD_CANNOT_BE_EMPTY: "Reward cannnot be empty",
 
+    INVALID_QR: "Invalid Qr",
+    QR_ALREADY_USED: "Qr already used",
+    QR_EXPIRED: "Qr expired",
+
     NOTIFICATION_NOT_FOUND: "Notification not found.",    
     DATA_NOT_FOUND: "Data not found.",
     CREATE_SUCCESS: "Created successfully.",

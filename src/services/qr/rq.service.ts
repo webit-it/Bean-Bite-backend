@@ -3,6 +3,9 @@ import { randomUUID } from "crypto";
 import { IQrRepository } from "../../interfaces/repository/qr.repository.interface";
 import { toQrGenerateResponseDto } from "../../mappers/qr.mapper";
 import { IQrService } from "../../interfaces/service/qr/qr.interface";
+import AppError from "../../utils/AppError";
+import { Messages } from "../../constants/messages";
+import HttpStatus from "../../constants/httpsStatusCode";
 
 export class QRService implements IQrService {
     constructor(private _qrRepo: IQrRepository) { }
@@ -26,24 +29,43 @@ export class QRService implements IQrService {
         }
     }
 
-    // async verify(code: string) {
-    //     try {
-    //         const qr = await QrCode.findOne({ code });
+     verify=async(code: string)=> {
+        try {
+            const qr = await this._qrRepo.findByCode(code)
+            if (!qr) {
+                throw new AppError(
+                    Messages.INVALID_QR,
+                    HttpStatus.NOT_FOUND
+                );
+            }
 
-    //         if (!qr) throw new Error("Invalid QR");
+            if (qr.isUsed) {
+                throw new AppError(
+                    Messages.QR_ALREADY_USED,
+                    HttpStatus.NOT_FOUND
+                );
+            }
 
-    //         if (qr.isUsed) throw new Error("QR already used");
+            if (qr.expiresAt && qr.expiresAt < new Date())
+                throw new AppError(
+                    Messages.QR_EXPIRED,
+                    HttpStatus.NOT_FOUND
+                );
 
-    //         if (qr.expiresAt && qr.expiresAt < new Date())
-    //             throw new Error("QR expired");
+            const updatedQr = await this._qrRepo.markAsUsed(code)
 
-    //         qr.isUsed = true;
-    //         await qr.save();
+            if (!updatedQr) {
+                throw new AppError(
+                    Messages.INVALID_QR,
+                    HttpStatus.NOT_FOUND
+                );
+            }
 
-    //         return qr;
-    //     } catch (error) {
-
-    //     }
-    // }
+            return updatedQr;
+        } catch (error) {
+            console.log("Error in verify Qr code :", error)
+            throw error
+        }
+    }
 }
 

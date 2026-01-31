@@ -11,5 +11,6 @@ const qrController=new QrController(qrService)
 
 
 router.post("/generate",qrController.generateQr)
+router.put("/verify",qrController.verifyQr)
 
 export default router 

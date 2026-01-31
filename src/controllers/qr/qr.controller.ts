@@ -8,7 +8,24 @@ export class QrController implements IQrController {
     constructor(private _qrService: IQrService) { }
     generateQr = async (req: Request, res: Response) => {
         try {
-            const qr=await this._qrService.generate()
+            const qr = await this._qrService.generate()
+            res.status(HttpStatus.CREATED).json({
+                success: true,
+                qr,
+            });
+        } catch (error: unknown) {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error instanceof Error
+                    ? error.message
+                    : ERROR_MESSAGES.SERVER_ERROR,
+            });
+        }
+    }
+    verifyQr = async (req: Request, res: Response) => {
+        try {
+            const { code } = req.body;
+            const qr = await this._qrService.verify(code)
             res.status(HttpStatus.CREATED).json({
                 success: true,
                 qr,

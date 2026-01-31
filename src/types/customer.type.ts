@@ -1,11 +1,13 @@
 import { Document } from "mongoose";
 
 export type CustomerSearchQuery = {
+  isAdmin?: boolean;
   $or?: Array<{
     fullName?: { $regex: string; $options: string };
     phoneNumber?: { $regex: string; $options: string };
   }>;
 };
+
 
 
 export interface ICustomer {

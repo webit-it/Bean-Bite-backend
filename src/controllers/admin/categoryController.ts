@@ -6,54 +6,63 @@ import { ERROR_MESSAGES } from "../../constants/errorMessages";
 import AppError from "../../utils/AppError";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
+import { UpdateCategoryDTO } from "../../types/category.type";
 
 export class CategoryController implements ICategoryController {
   constructor(private _categoryService: ICategoryServiceInterface) {}
-  create = async (req: Request, res: Response) => {
-    try {
-      const { categoryName, description, slug } = req.body;
+create = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { categoryName, description, slug ,status} = req.body;
 
-      if (!categoryName || !description) {
-        throw new AppError(
-          Messages.CATEGORY_NAME_AND_DESCRIPTION_REQUIRED,
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      if (!req.file) {
-        throw new AppError(
-          Messages.IMAGE_REQUIRED,
-          HttpStatus.BAD_REQUEST
-        );
-      }
-
-      await this._categoryService.createCategory({
-        categoryName,
-        description,
-        slug,
-        imageBuffer: req.file.buffer,
-      });
-
-      res.status(HttpStatus.CREATED).json({
-        success: true,
-        message: Messages.CATEGORY_CREATED_SUCCESSFULLY,
-      });
-    } catch (error: unknown) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
+    if (!categoryName || !description || !slug) {
+      throw new AppError(
+        Messages.MISSING_FIELDS,
+        HttpStatus.BAD_REQUEST
+      );
     }
+
+    if (!req.file) {
+      throw new AppError(
+        Messages.IMAGE_REQUIRED,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const category = await this._categoryService.createCategory({
+      categoryName,
+      description,
+      slug,
+      imageBuffer: req.file.buffer,
+      status
+    });
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: Messages.CATEGORY_CREATED_SUCCESSFULLY,
+      data: category,
+    });
+
+  } catch (error: unknown) {
+    res.status(
+      error instanceof AppError
+        ? error.statusCode
+        : HttpStatus.BAD_REQUEST
+    ).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.SERVER_ERROR,
+    });
   }
+};
+
+
   getCategoryBySlug = async (req: Request, res: Response) => {
     try {
       const { slug } = req.params;
-      console.log("controller slug:", slug);
 
-      const category = await this._categoryService.getCategoryForEdit(slug);
+      const category = await this._categoryService.getCategoryBySlug(slug);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -69,45 +78,59 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-  editCategory = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { categoryName, description, status, slug } = req.body;
+ editCategory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { categoryName, description, status, slug } = req.body;
+       if (!categoryName || !description || !slug) {
+      throw new AppError(
+        Messages.MISSING_FIELDS,
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
-      if (!Types.ObjectId.isValid(id)) {
-        throw new AppError(
-          Messages.INVALID_CATEGORY_ID,
-          HttpStatus.BAD_REQUEST
-        );
-      }
+    if (!Types.ObjectId.isValid(id)) {
+      throw new AppError(
+        Messages.INVALID_CATEGORY_ID,
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
-      const updatedData: any = {
-        categoryName,
-        description,
-        status,
-        slug,
-      };
+  const updatedData: UpdateCategoryDTO = {
+      categoryName,
+      description,
+      status,
+      slug,
+    };
 
-      if (req.file) {
-        updatedData.imageBuffer = req.file.buffer;
-      }
+    if (req.file) {
+      updatedData.imageBuffer = req.file.buffer;
+    }
 
+    const updatedCategory =
       await this._categoryService.updateCategory(id, updatedData);
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: Messages.CATEGORY_UPDATED_SUCCESSFULLY,
-      });
-    } catch (error: unknown) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
-    }
-  };
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: Messages.CATEGORY_UPDATED_SUCCESSFULLY,
+      data: updatedCategory, 
+    });
+
+  } catch (error: unknown) {
+    res.status(
+      error instanceof AppError
+        ? error.statusCode
+        : HttpStatus.INTERNAL_SERVER_ERROR
+    ).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.SERVER_ERROR,
+    });
+  }
+};
+
   getAllCategories = async (req: Request, res: Response) => {
     try {
       const page = Number(req.query.page) || 1;
@@ -116,6 +139,7 @@ export class CategoryController implements ICategoryController {
 
       const result =
         await this._categoryService.getAllCategories(page, limit, search);
+        console.log(result.data)
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -139,30 +163,6 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-  toggleCategoryStatus = async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!Types.ObjectId.isValid(id)) {
-        throw new AppError(
-          Messages.INVALID_CATEGORY_ID,
-          HttpStatus.BAD_REQUEST
-        );
-      }
-      await this._categoryService.toggleCategoryStatus(id);
-
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: Messages.CATEGORY_STATUS_TOGGLED,
-      });
-    } catch (error: unknown) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
-    }
-  };
+ 
 }
 

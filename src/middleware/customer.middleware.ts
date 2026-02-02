@@ -1,8 +1,8 @@
 import { Response, NextFunction } from "express";
-import { AuthRequest } from "./auth.middleware";
+import { AuthenticatedRequest } from "./auth.middleware";
 
 export const isCustomer = (
-  req: AuthRequest,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {

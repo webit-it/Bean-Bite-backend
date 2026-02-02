@@ -2,6 +2,7 @@ import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 import ICustomerServiceInterface from "../../interfaces/service/admin/customer.service.interface";
+import { CustomerMapper } from "../../mappers/customer.mapper";
 import AppError from "../../utils/AppError";
 
 
@@ -11,7 +12,7 @@ export class CustomerService implements ICustomerServiceInterface {
   getAllCustomers = async (page: number, limit: number, search?: string) => {
     const result = await this._customerRepository.findAllPaginated(page, limit, search);
     return {
-      data: result.data,
+      data: result.data.map(CustomerMapper.toResponse),
       total: result.total,
       page: result.page,
       limit: result.limit,
@@ -40,7 +41,7 @@ export class CustomerService implements ICustomerServiceInterface {
         );
       }
 
-      return updated;
+      return CustomerMapper.toResponse(updated);
     } catch (error) {
       throw error;
     }

@@ -1,4 +1,4 @@
-import { ICustomer, PaginatedCustomerResponse } from "../../../types/customer.type";
+import { CustomerResponseDTO, ICustomer, PaginatedCustomerResponse } from "../../../types/customer.type";
 
 
 export default interface ICustomerServiceInterface {
@@ -7,6 +7,6 @@ export default interface ICustomerServiceInterface {
       limit: number,
       search?: string
     ): Promise<PaginatedCustomerResponse>;
-      toggleCustomerStatus(id: string): Promise<ICustomer>;
+      toggleCustomerStatus(id: string): Promise<CustomerResponseDTO>;
     
 }

@@ -31,4 +31,24 @@ export class AdminAuthController implements IAdminAuthController {
       });
     }
   };
+  logout = async (req: Request, res: Response) => {
+    try {
+      await this._adminAuthService.adminLogout();
+
+      res.clearCookie("access_token", {
+        httpOnly: true,
+        secure: false, // true in production (HTTPS)
+        sameSite: "strict",
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Admin logged out successfully",
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        message: "Logout failed",
+      });
+    }
+  };
 }

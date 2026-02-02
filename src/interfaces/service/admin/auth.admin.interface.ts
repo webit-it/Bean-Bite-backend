@@ -1,11 +1,15 @@
-import { ICustomerDocument } from "../../../types/customer.type";
+import { CustomerResponseDTO } from "../../../types/customer.type";
 
 export interface IAdminAuthService {
   adminLogin(
     phoneNumber: string,
     password: string
   ): Promise<{
-    user: ICustomerDocument;
+    user: CustomerResponseDTO;
     token: string;
+  }>;
+
+  adminLogout(): Promise<{
+    message: string;
   }>;
 }

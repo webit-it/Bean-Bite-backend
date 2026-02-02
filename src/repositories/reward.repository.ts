@@ -8,13 +8,20 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
         super(Reward);
     }
     async findByLevel(level: number) {
-        return Reward.findOne({ level });
+        return Reward.findOne({ level })
+            .populate({
+                path: "rewardProducts",
+                select: "productName image",
+            }).exec();
     }
-    async updateSlotCount(level: number,  data: Partial<{ rewardName: string; slotCount: number }>) {
+    async updateSlotCount(level: number, data: Partial<{ rewardName: string; slotCount: number }>) {
         return Reward.findOneAndUpdate(
             { level },
             { $set: data },
             { new: true }
         );
+    }
+    async findAll() {
+        return Reward.find().populate("rewardProducts", "productName image");
     }
 }

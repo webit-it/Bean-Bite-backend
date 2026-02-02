@@ -65,7 +65,7 @@ export class RewardService implements IRewardService {
             if (rewardName !== undefined) updateData.rewardName = rewardName;
 
             if (rewardProductIds) {
-                updateData.rewardProductIds = rewardProductIds.map(
+                updateData.rewardProducts = rewardProductIds.map(
                     (id) => new Types.ObjectId(id)
                 );
             }

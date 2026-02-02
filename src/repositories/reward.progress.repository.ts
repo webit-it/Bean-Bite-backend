@@ -30,6 +30,25 @@ export class RewardProgressRepository extends BaseRepository<ICustomerRewardProg
     // ) {
     //     return await CustomerRewardProgress.find({ customerId })
     // }
+    async markAsCompleted(progressId: string) {
+        return await CustomerRewardProgress.findByIdAndUpdate(
+            progressId,
+            {
+                status: "COMPLETED",
+                completedAt: new Date(),
+            },
+            { new: true }
+        );
+    }
+    async getCompletedProgress(customerId: string) {
+        return await CustomerRewardProgress.find({
+            customerId: new mongoose.Types.ObjectId(customerId),
+            status: "COMPLETED",
+        })
+            .sort({ completedAt: -1 })
+            .lean();
+    }
+
     async incrementProgress(
         customerId: string,
         rewardId: string,

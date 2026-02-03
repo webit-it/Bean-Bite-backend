@@ -9,8 +9,25 @@ export class CustomerAuthService implements ICustomerAuthService {
 
     register = async (fullName: string, phoneNumber: string, password: string) => {
         try {
-            const existingCustomer=await this._customerRepo.findByphoneNumber(phoneNumber)
-            if(existingCustomer){
+            const nameRegex = /^[A-Za-z ]{3,}$/;
+            if (!nameRegex.test(fullName.trim())) {
+                throw {
+                    status: HttpStatus.BAD_REQUEST,
+                    message: Messages.ENTER_VALIED_NAME,
+                };
+            }
+            const globalPhoneRegex = /^\+[1-9]\d{1,14}$/;
+
+            if (!globalPhoneRegex.test(phoneNumber)) {
+                throw {
+                    status: HttpStatus.BAD_REQUEST,
+                    message: Messages.USE_VALIED_FORMATE,
+                };
+            }
+
+
+            const existingCustomer = await this._customerRepo.findByphoneNumber(phoneNumber)
+            if (existingCustomer) {
                 throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_AlREADY_EXIST };
             }
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,8 +38,8 @@ export class CustomerAuthService implements ICustomerAuthService {
             const data = {
                 fullName,
                 phoneNumber,
-                password: hashedPassword, 
-                isActive:true,
+                password: hashedPassword,
+                isActive: true,
                 isAdmin: false,
                 otp: hashedOtp,
                 otpExpires
@@ -46,8 +63,9 @@ export class CustomerAuthService implements ICustomerAuthService {
         }
 
 
-        if (!customer.otp ||!customer.otpExpires ||Date.now() > customer.otpExpires.getTime()){
-            throw {status: HttpStatus.BAD_REQUEST,message: Messages.INVALID_OTP}}
+        if (!customer.otp || !customer.otpExpires || Date.now() > customer.otpExpires.getTime()) {
+            throw { status: HttpStatus.BAD_REQUEST, message: Messages.INVALID_OTP }
+        }
 
 
         const isMatch = await bcrypt.compare(otp.trim(), customer.otp);
@@ -88,7 +106,7 @@ export class CustomerAuthService implements ICustomerAuthService {
         const user = await this._customerRepo.findByphoneNumber(phoneNumber);
 
         if (!user) {
-            throw { status: HttpStatus.NOT_FOUND, message:Messages.CUSTOMER_NOT_FOUND };
+            throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_NOT_FOUND };
         }
 
         if (!user.password) {

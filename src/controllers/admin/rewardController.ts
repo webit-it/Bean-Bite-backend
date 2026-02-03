@@ -44,9 +44,9 @@ export class RewardController {
     updateRewardByLevel = async (req: Request, res: Response) => {
         try {
             const level = Number(req.params.level);
-            const { slotCount, rewardName, rewardProductIds } = req.body;
+            const { slotCount, rewardName, rewardProducts } = req.body;
 
-            const reward = await this._rewardService.updateRewardByLevel(level, slotCount, rewardName,rewardProductIds);
+            const reward = await this._rewardService.updateRewardByLevel(level, slotCount, rewardName,rewardProducts);
 
             return res.status(HttpStatus.CREATED).json({
                 success: true,

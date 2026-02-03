@@ -12,9 +12,12 @@ export class ProductRepository
     super(ProductModel);
   }
 
-  findBySlug(slug: string) {
-    return this.model.findOne({ slug }).exec();
-  }
+async findBySlug(slug: string): Promise<IProductDocument | null> {
+  return await ProductModel.findOne({ slug })
+    .populate("category", "_id slug") 
+    .exec();
+}
+
 
   findByName(productName: string) {
     return this.model.findOne({ productName }).exec();
@@ -49,7 +52,7 @@ export class ProductRepository
     const [data, total] = await Promise.all([
   this.model
     .find(query)
-    .populate("category", "categoryName")
+    .populate("category", "_id slug")
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit),

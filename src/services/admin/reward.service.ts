@@ -36,7 +36,7 @@ export class RewardService implements IRewardService {
             throw error
         }
     };
-    updateRewardByLevel = async (level: number, slotCount?: number, rewardName?: string, rewardProductIds?: string[]): Promise<RewardResponseDto> => {
+    updateRewardByLevel = async (level: number, slotCount?: number, rewardName?: string, rewardProducts?: string[]): Promise<RewardResponseDto> => {
         try {
             if (![1, 2, 3].includes(level)) {
                 throw new AppError(
@@ -64,18 +64,19 @@ export class RewardService implements IRewardService {
             if (slotCount !== undefined) updateData.slotCount = slotCount;
             if (rewardName !== undefined) updateData.rewardName = rewardName;
 
-            if (rewardProductIds) {
-                updateData.rewardProductIds = rewardProductIds.map(
+            if (rewardProducts) {
+                updateData.rewardProducts = rewardProducts.map(
                     (id) => new Types.ObjectId(id)
                 );
             }
-            const updatedReward = await this._rewardRepo.updateSlotCount(level, updateData);
+            const updatedReward = await this._rewardRepo.updateRewardByLevel(level, updateData);
             if (!updatedReward) {
                 throw new AppError(
                     Messages.INVALID_REWARD_LEVEL,
                     HttpStatus.NOT_FOUND
                 );
             }
+            await updatedReward.populate('rewardProducts');
             return toRewardResponseDto(updatedReward);
         } catch (error) {
             console.error("Error in updateSlotCount:", error);

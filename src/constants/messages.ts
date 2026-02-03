@@ -63,6 +63,8 @@ export const Messages = {
     PRODUCT_STATUS_TOGGLED:'Successfully product status changed',
 
     //customer
-    INVALID_CUSTOMER_ID:'invalied customer id',
+    INVALID_CUSTOMER_ID:'Invalied customer id',
     CUSTOMER_STATUS_TOGGLED:'Successfully Customer status changed',
+    ENTER_VALIED_NAME:'Please enter a valied name',
+    USE_VALIED_FORMATE:'Please enter valied phone number'
 };

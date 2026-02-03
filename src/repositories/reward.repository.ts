@@ -9,18 +9,27 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
         super(Reward);
     }
     async findByLevel(level: number) {
-        return Reward.findOne({ level })
-            .populate({
-                path: "rewardProducts",
-                select: "productName image",
-            }).exec();
+        return Reward.findOne({ level }).select("rewardProducts level");
     }
-    async updateRewardByLevel(level: number, data: Partial<IReward>) {
-        return Reward.findOneAndUpdate(
-            { level },
-            { $set: data },
-            { new: true }
-        )
+    async findByName(name: string): Promise<IReward | null> {
+        return Reward.findOne({ rewardName: name });
+    }
+
+    async findBySlug(slug: string): Promise<IReward | null> {
+        return Reward.findOne({ slug });
+    }
+    async updateRewardByLevel(
+        level: number,
+        data: Partial<IReward>,
+        rewardProductIds?: string[]
+    ) {
+        const updateQuery: Partial<IReward> & { $addToSet?: { rewardProducts: { $each: Types.ObjectId[] } } } = { ...data };
+
+        if (rewardProductIds && rewardProductIds.length > 0) {
+            updateQuery.$addToSet = { rewardProducts: { $each: rewardProductIds.map(id => new Types.ObjectId(id)) } };
+        }
+
+        return Reward.findOneAndUpdate({ level }, updateQuery, { new: true });
     }
     async findAll() {
         return Reward.find().populate("rewardProducts", "productName image");

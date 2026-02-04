@@ -80,24 +80,8 @@ export class RewardService implements IRewardService {
             if (slug) updateData.slug = slug;
 
             let newProductIds: string[] | undefined;
+
             if (rewardProducts && rewardProducts.length > 0) {
-                const reward = await this._rewardRepo.findByLevel(level);
-                if (!reward) throw new AppError(Messages.REWARD_NOT_FOUND, HttpStatus.NOT_FOUND);
-
-                const existingProductIds = (reward.rewardProducts ?? []).map(p =>
-                    p instanceof Types.ObjectId ? p.toString() : p.id.toString()
-                );
-
-                const duplicateIdsInDB = rewardProducts.filter(id =>
-                    existingProductIds.includes(id)
-                );
-
-                if (duplicateIdsInDB.length > 0) {
-                    throw new AppError(
-                        `Products already exist in this reward: ${duplicateIdsInDB.join(", ")}`,
-                        HttpStatus.BAD_REQUEST
-                    );
-                }
 
                 const duplicateIdsInNew = rewardProducts.filter(
                     (id, idx, arr) => arr.indexOf(id) !== idx
@@ -112,6 +96,7 @@ export class RewardService implements IRewardService {
 
                 newProductIds = rewardProducts;
             }
+
 
             const updatedReward = await this._rewardRepo.updateRewardByLevel(level, updateData, newProductIds);
             if (!updatedReward) {

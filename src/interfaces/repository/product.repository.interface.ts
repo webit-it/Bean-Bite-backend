@@ -17,6 +17,7 @@ export default interface IProductRepository {
     page: number,
     limit: number,
     search?: string,
-    category?:string,
+    category?: string,
+    exclude?: string[]
   ): Promise<PaginatedProducts<IProductDocument>>;
 }

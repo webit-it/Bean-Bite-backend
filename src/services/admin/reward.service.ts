@@ -36,54 +36,85 @@ export class RewardService implements IRewardService {
             throw error
         }
     };
-    updateRewardByLevel = async (level: number, slotCount?: number, rewardName?: string, rewardProducts?: string[]): Promise<RewardResponseDto> => {
+    updateRewardByLevel = async (
+        level: number,
+        slotCount?: number,
+        rewardName?: string,
+        rewardProducts?: string[],
+        slug?: string
+    ): Promise<RewardResponseDto> => {
         try {
             if (![1, 2, 3].includes(level)) {
-                throw new AppError(
-                    Messages.INVALID_REWARD_LEVEL,
-                    HttpStatus.BAD_REQUEST
-                );
+                throw new AppError(Messages.INVALID_REWARD_LEVEL, HttpStatus.BAD_REQUEST);
             }
 
             if (slotCount !== undefined && (slotCount < 4 || slotCount > 6)) {
-                throw new AppError(
-                    Messages.INVALID_SLOT_COUNT,
-                    HttpStatus.BAD_REQUEST
-                );
+                throw new AppError(Messages.INVALID_SLOT_COUNT, HttpStatus.BAD_REQUEST);
             }
 
             if (rewardName !== undefined && rewardName.trim() === "") {
-                throw new AppError(
-                    Messages.REWARD_CANNOT_BE_EMPTY,
-                    HttpStatus.BAD_REQUEST
-                );
+                throw new AppError(Messages.REWARD_CANNOT_BE_EMPTY, HttpStatus.BAD_REQUEST);
             }
 
-            const updateData:Partial<IReward>= {};
+            if (slug !== undefined && slug.trim() === "") {
+                throw new AppError(Messages.INVALID_REWARD_LEVEL, HttpStatus.BAD_REQUEST);
+            }
 
+            if (rewardName) {
+                const existing = await this._rewardRepo.findByName(rewardName);
+                if (existing && existing.level !== level) {
+                    throw new AppError(Messages.REWARD_NAME_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+                }
+            }
+
+            if (slug) {
+                const existingSlug = await this._rewardRepo.findBySlug(slug);
+                if (existingSlug && existingSlug.level !== level) {
+                    throw new AppError(Messages.SLUG_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+                }
+            }
+
+            const updateData: Partial<IReward> = {};
             if (slotCount !== undefined) updateData.slotCount = slotCount;
-            if (rewardName !== undefined) updateData.rewardName = rewardName;
+            if (rewardName) updateData.rewardName = rewardName;
+            if (slug) updateData.slug = slug;
 
-            if (rewardProducts) {
-                updateData.rewardProducts = rewardProducts.map(
-                    (id) => new Types.ObjectId(id)
+            let newProductIds: string[] | undefined;
+
+            if (rewardProducts && rewardProducts.length > 0) {
+
+                const duplicateIdsInNew = rewardProducts.filter(
+                    (id, idx, arr) => arr.indexOf(id) !== idx
                 );
+
+                if (duplicateIdsInNew.length > 0) {
+                    throw new AppError(
+                        `Duplicate products in request: ${[...new Set(duplicateIdsInNew)].join(", ")}`,
+                        HttpStatus.BAD_REQUEST
+                    );
+                }
+
+                newProductIds = rewardProducts;
             }
-            const updatedReward = await this._rewardRepo.updateRewardByLevel(level, updateData);
+
+
+            const updatedReward = await this._rewardRepo.updateRewardByLevel(level, updateData, newProductIds);
             if (!updatedReward) {
-                throw new AppError(
-                    Messages.INVALID_REWARD_LEVEL,
-                    HttpStatus.NOT_FOUND
-                );
+                throw new AppError("Reward not found", HttpStatus.NOT_FOUND);
             }
-            await updatedReward.populate('rewardProducts');
+
+            await updatedReward.populate("rewardProducts");
+
             return toRewardResponseDto(updatedReward);
+
         } catch (error) {
-            console.error("Error in updateSlotCount:", error);
-            throw error
+            console.error("Error in updateRewardByLevel:", error);
+            throw error;
         }
     };
-    addReward = async ( rewardName: string,slug: string,level: number, slotCount: number, rewardProductIds: string[]): Promise<RewardResponseDto> => {
+
+
+    addReward = async (rewardName: string, slug: string, level: number, slotCount: number, rewardProductIds: string[]): Promise<RewardResponseDto> => {
         try {
             if (!rewardName || !slug || !level || !slotCount) {
                 throw new AppError(

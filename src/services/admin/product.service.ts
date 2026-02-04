@@ -8,6 +8,7 @@ import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import AppError from "../../utils/AppError";
 import { ProductMapper } from "../../mappers/product.mapper";
+import { Types } from "mongoose";
 
 
 export class ProductService implements IProductServiceInteface {
@@ -16,57 +17,77 @@ export class ProductService implements IProductServiceInteface {
   ) { }
 
   createProduct = async (data: CreateProductDTO) => {
-
     try {
-       const {
-      productName,
-      description,
-      slug,
-      image,
-      category,
-      price,
-      discountType,
-      discountValue,
-    } = data;
-    const existing = await this._productRepository.findBySlug(slug);
-    if (existing) {
-      throw new AppError(
-        Messages.PRODUCT_AlREADY_EXIST,
-        HttpStatus.NOT_FOUND
-      );
-    }
-    const imageUrl = await uploadToCloudinary(image, "products");
+      const {
+        productName,
+        description,
+        slug,
+        image,
+        category,
+        price,
+        discountType,
+        discountValue,
+      } = data;
 
-    const finalPrice = calculateFinalPrice(
-      price,
-      discountType,
-      discountValue
-    );
-
-   const productDoc= await this._productRepository.create({
-      productName,
-      slug,
-      category: new mongoose.Types.ObjectId(category),
-      price,
-      finalPrice,
-      description,
-      image: imageUrl,
-      discountType,
-      discountValue,
-      status: true,
-    });
-
-   return ProductMapper.toResponse(productDoc);
-  
-      } catch (error) {
-        console.log("Create category error :", error);
-        throw error;
+     
+      if (!productName || !description || !slug) {
+        throw new AppError(
+          Messages.MISSING_FIELDS,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      const regularPrice = Number(data.price);
+      const discountValueForOffer = Number(data.discountValue);
       
+      if (discountType === "percentage" && discountValueForOffer > 100) {
+        throw new AppError(
+          Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      if (discountType === "fixed" && discountValueForOffer > regularPrice) {
+        throw new AppError(
+          Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      const existing = await this._productRepository.findBySlugOrName(slug, productName);
+      if (existing) {
+        throw new AppError(
+          Messages.PRODUCT_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
+      }
+      const imageUrl = await uploadToCloudinary(image, "products");
+
+      const finalPrice = calculateFinalPrice(
+        regularPrice,
+        discountType,
+        discountValueForOffer
+      );
+
+      const productDoc = await this._productRepository.create({
+        productName,
+        slug,
+        category: new mongoose.Types.ObjectId(category),
+        price,
+        finalPrice,
+        description,
+        image: imageUrl,
+        discountType,
+        discountValue,
+        status: true,
+      });
+
+      return ProductMapper.toResponse(productDoc);
+
+    } catch (error) {
+      throw error;
     }
-
-
   }
-  getProductBySlug= async (slug: string) => {
+  getProductBySlug = async (slug: string) => {
     try {
       const productDoc = await this._productRepository.findBySlug(slug);
 
@@ -85,26 +106,57 @@ export class ProductService implements IProductServiceInteface {
   };
   updateProduct = async (id: string, data: UpdateProductDTO) => {
     try {
-      if (data.productName) {
-        const existingProduct =
-          await this._productRepository.findByName(data.productName);
-
-        if (existingProduct && existingProduct.slug !== data.slug) {
-          throw new AppError(
-            Messages.PRODUCT_AlREADY_EXIST,
-            HttpStatus.BAD_REQUEST
-          );
-
-        }
-      }
-      const price = data.price ?? 0;
-      const discountType = data.discountType;
-      const discountValue = data.discountValue;
-
-      const finalPrice = calculateFinalPrice(
+      const {
+        productName,
+        description,
+        slug,
+        image,
+        category,
         price,
         discountType,
-        discountValue
+        discountValue,
+      } = data;
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_PRODUCT_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      const regularPrice = Number(data.price);
+      const discountValueForOffer = Number(data.discountValue);
+      if (!productName || !description || !slug) {
+        throw new AppError(
+          Messages.MISSING_FIELDS,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+      if (discountType === "percentage" && discountValueForOffer > 100) {
+        throw new AppError(
+          Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      if (discountType === "fixed" && discountValueForOffer > regularPrice) {
+        throw new AppError(
+          Messages.PRODUCT_FIXED_AMOUNT_LESS_THAN_PRICE,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+
+      const existing = await this._productRepository.findBySlugOrName(slug, productName);
+      if (existing) {
+        throw new AppError(
+          Messages.PRODUCT_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      const finalPrice = calculateFinalPrice(
+        regularPrice,
+        discountType,
+        discountValueForOffer
       );
       const updateData: Partial<IProduct> = {
         productName: data.productName,
@@ -134,25 +186,24 @@ export class ProductService implements IProductServiceInteface {
 
       return ProductMapper.toResponse(updatedDoc);
     } catch (error) {
-      console.log("Update category error:", error);
       throw error;
     }
   };
   getAllProducts = async (page: number, limit: number, search?: string) => {
-   
-  const result = await this._productRepository.findAllPaginated(
-  page,
-  limit,
-  search
-);
 
-return {
-  data: result.data.map(ProductMapper.toResponse), 
-  total: result.total,
-  page: result.page,
-  limit: result.limit,
-  totalPages: Math.ceil(result.total / limit),
-};
+    const result = await this._productRepository.findAllPaginated(
+      page,
+      limit,
+      search
+    );
+
+    return {
+      data: result.data.map(ProductMapper.toResponse),
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: Math.ceil(result.total / limit),
+    };
 
   };
 

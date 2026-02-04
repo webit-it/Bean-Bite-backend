@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import IProductRepository from "../interfaces/repository/product.repository.interface";
 import ProductModel from "../models/product.model";
 import { IProductDocument, PaginatedProducts, ProductSearchQuery } from "../types/product.type";
 import { BaseRepository } from "./base.reposiory";
+import { UpdateQuery } from "mongoose";
 
 export class ProductRepository
   extends BaseRepository<IProductDocument>
@@ -17,12 +18,33 @@ async findBySlug(slug: string): Promise<IProductDocument | null> {
     .populate("category", "_id slug") 
     .exec();
 }
-
-
-  findByName(productName: string) {
-    return this.model.findOne({ productName }).exec();
-  }
-
+async  findByName(productName: string) {
+    return await this.model.findOne({ productName }).exec();
+}
+async findBySlugOrName(slug: string, productName: string) {
+  return await this.model.findOne({
+    $or: [{ slug }, { productName }],
+  });
+}
+ async create(data: Partial<IProductDocument>) {
+    const doc = new this.model(data);
+    await doc.save();
+    await doc.populate("category", "_id slug");
+    return doc;
+}
+ async update(  id: string | Types.ObjectId,data: UpdateQuery<IProductDocument>) {
+  return await this.model
+    .findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    })
+    .populate({
+      path: "category",
+      select: "_id slug",
+      options: { lean: false },
+    })
+    .exec();
+}
 async findAllPaginated(
   page: number,
   limit: number,
@@ -77,5 +99,4 @@ async findAllPaginated(
 
   return { data, total, page, limit };
 }
-
-  }
+ }

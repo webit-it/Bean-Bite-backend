@@ -4,11 +4,12 @@ import { IProduct, IProductDocument, PaginatedProducts } from "../../types/produ
 
 export default interface IProductRepository {
   findBySlug(slug: string): Promise<IProductDocument | null>;
-  findByName(categoryName: string): Promise<IProduct | null>;
+  findByName(productName: string): Promise<IProduct | null>;
+  findBySlugOrName(slug: string, productName: string): Promise<IProductDocument | null>;
   create(data: Partial<IProductDocument>): Promise<IProductDocument>;
   update(
     id: string | Types.ObjectId,
-    data: UpdateQuery<IProduct>
+    data: UpdateQuery<IProductDocument>
   ): Promise<IProductDocument | null>;
 
   findAll(): Promise<IProductDocument[]>;

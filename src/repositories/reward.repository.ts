@@ -1,6 +1,7 @@
+import { Types } from "mongoose";
 import { IRewardRepository } from "../interfaces/repository/reward.repository.interface";
 import { Reward } from "../models/reward.model";
-import { IRewardDocument } from "../types/reward.type";
+import { IReward, IRewardDocument } from "../types/reward.type";
 import { BaseRepository } from "./base.reposiory";
 
 export class RewardRepository extends BaseRepository<IRewardDocument> implements IRewardRepository {
@@ -8,18 +9,27 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
         super(Reward);
     }
     async findByLevel(level: number) {
-        return Reward.findOne({ level })
-            .populate({
-                path: "rewardProducts",
-                select: "productName image",
-            }).exec();
+        return Reward.findOne({ level }).select("rewardProducts level");
     }
-    async updateSlotCount(level: number, data: Partial<{ rewardName: string; slotCount: number }>) {
-        return Reward.findOneAndUpdate(
-            { level },
-            { $set: data },
-            { new: true }
-        );
+    async findByName(name: string): Promise<IReward | null> {
+        return Reward.findOne({ rewardName: name });
+    }
+
+    async findBySlug(slug: string): Promise<IReward | null> {
+        return Reward.findOne({ slug });
+    }
+    async updateRewardByLevel(
+        level: number,
+        data: Partial<IReward>,
+        rewardProductIds?: string[]
+    ) {
+        const updateQuery: Partial<IReward> & { $addToSet?: { rewardProducts: { $each: Types.ObjectId[] } } } = { ...data };
+
+        if (rewardProductIds && rewardProductIds.length > 0) {
+            updateQuery.$addToSet = { rewardProducts: { $each: rewardProductIds.map(id => new Types.ObjectId(id)) } };
+        }
+
+        return Reward.findOneAndUpdate({ level }, updateQuery, { new: true });
     }
     async findAll() {
         return Reward.find().populate("rewardProducts", "productName image");

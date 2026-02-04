@@ -22,6 +22,10 @@ export const Messages = {
     INVALID_REWARD_LEVEL:"Invalid reward level",
     INVALID_SLOT_COUNT: "Slot count must be between 4 and 6",
     REWARD_CANNOT_BE_EMPTY: "Reward cannnot be empty",
+    REWARD_SLUG_CANNOT_BE_EMPTY: "Slug cannnot be empty",
+    SLUG_ALREADY_EXISTS: "Slug already exists",
+    REWARD_NAME_ALREADY_EXISTS: "Reward name already exists",
+    REWARD_NOT_FOUND: "Reward not found",
 
     NOTIFICATION_NOT_FOUND: "Notification not found.",    
     DATA_NOT_FOUND: "Data not found.",

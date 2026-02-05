@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import ICategoryRepository from "../../interfaces/repository/category.repostory.interface";
@@ -12,30 +13,24 @@ export class CategoryService implements ICategoryServiceInterface {
     private _categoryRepository: ICategoryRepository
   ) { }
 
- createCategory = async (
-  data: CreateCategoryDTO
-): Promise<CategoryResponseDto> => {
+ createCategory = async (data: CreateCategoryDTO) => {
   try {
     const { categoryName, description, slug, imageBuffer, status } = data;
 
-    const existingBySlug = await this._categoryRepository.findBySlug(slug);
+     if (!categoryName || !description || !slug) {
+      throw new AppError(
+        Messages.MISSING_FIELDS,
+        HttpStatus.BAD_REQUEST
+      );
+    }
+    const existing = await this._categoryRepository.findBySlugOrName(slug,categoryName);
 
-    if (existingBySlug) {
+    if (existing) {
       throw new AppError(
         Messages.CATEGORY_AlREADY_EXIST,
         HttpStatus.BAD_REQUEST
       );
     }
-
-    const existingByName =await this._categoryRepository.findByName(categoryName);
-
-    if (existingByName) {
-      throw new AppError(
-        Messages.CATEGORY_AlREADY_EXIST,
-        HttpStatus.BAD_REQUEST
-      );
-    }
-
     const imageUrl = await uploadToCloudinary(
       imageBuffer,
       "categories"
@@ -52,7 +47,6 @@ export class CategoryService implements ICategoryServiceInterface {
     return CategoryMapper.toResponse(categoryDoc);
 
   } catch (error) {
-    console.log("Create category error:", error);
     throw error;
   }
 };
@@ -71,38 +65,37 @@ export class CategoryService implements ICategoryServiceInterface {
     return CategoryMapper.toResponse(categoryDoc);
 
   } catch (error) {
-    console.log("Get category for edit error:", error);
     throw error;
   }
 };
 
-updateCategory = async (
-  id: string,
-  data: UpdateCategoryDTO
-): Promise<CategoryResponseDto> => {
+updateCategory = async (  id: string,  data: UpdateCategoryDTO) => {
   try {
-    if (data.categoryName) {
-      const existingByName =
-        await this._categoryRepository.findByName(data.categoryName);
+    const { categoryName, description, slug, imageBuffer, status } = data;
 
-      if (existingByName && existingByName._id.toString() !== id) {
+     if (!categoryName || !description || !slug) {
+        throw new AppError(
+          Messages.MISSING_FIELDS,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_CATEGORY_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+  
+      const existing = await this._categoryRepository.findBySlugOrName(slug,categoryName);
+
+      if (existing&&existing._id.toString() !== id) {
         throw new AppError(
           Messages.CATEGORY_AlREADY_EXIST,
           HttpStatus.BAD_REQUEST
         );
-      }
-    }
-
-    if (data.slug) {
-      const existingBySlug =
-        await this._categoryRepository.findBySlug(data.slug);
-
-      if (existingBySlug && existingBySlug._id.toString() !== id) {
-        throw new AppError(
-          Messages.CATEGORY_AlREADY_EXIST,
-          HttpStatus.BAD_REQUEST
-        );
-      }
+    
     }
 
     const updateData: Partial<ICategory> = {
@@ -120,8 +113,7 @@ updateCategory = async (
       updateData.image = imageUrl;
     }
 
-    const updatedDoc =
-      await this._categoryRepository.update(id, updateData);
+    const updatedDoc =await this._categoryRepository.update(id, updateData);
 
     if (!updatedDoc) {
       throw new AppError(
@@ -141,10 +133,9 @@ updateCategory = async (
   page: number,
   limit: number,
   search?: string
-): Promise<PaginatedCategoryResponse> => {
+) => {
 
-  const result =
-    await this._categoryRepository.findAllPaginated(page, limit, search);
+  const result =await this._categoryRepository.findAllPaginated(page, limit, search);
 
   return {
     data: result.data.map(CategoryMapper.toResponse), 

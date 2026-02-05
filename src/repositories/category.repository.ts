@@ -10,14 +10,17 @@ export class CategoryRepository extends BaseRepository<ICategoryDocument> implem
     super(CategoryModel);
   }
 
-  findBySlug(slug: string) {
-    return this.model.findOne({ slug }).exec();
+async  findBySlug(slug: string) {
+    return await this.model.findOne({ slug }).exec();
   }
-
-  findByName(categoryName: string) {
-    return this.model.findOne({ categoryName }).exec();
+async  findByName(categoryName: string) {
+    return await this.model.findOne({ categoryName }).exec();
   }
-
+  async findBySlugOrName(slug: string, categoryName: string) {
+  return await this.model.findOne({
+    $or: [{ slug }, { categoryName }],
+  });
+}
   async findAllPaginated(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
     const query: CategorySearchQuery = {};

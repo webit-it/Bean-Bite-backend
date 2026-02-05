@@ -88,15 +88,21 @@ updateCategory = async (  id: string,  data: UpdateCategoryDTO) => {
       }
 
   
-      const existing = await this._categoryRepository.findBySlugOrName(slug,categoryName);
-
-      if (existing&&existing._id.toString() !== id) {
-        throw new AppError(
-          Messages.CATEGORY_AlREADY_EXIST,
-          HttpStatus.BAD_REQUEST
-        );
     
-    }
+      const existingBySlug = await this._categoryRepository.findBySlug(slug);
+      if (existingBySlug&&existingBySlug._id.toString()!==id) {
+        throw new AppError(
+          Messages.PRODUCT_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
+      }
+      const existingByName = await this._categoryRepository.findByName(categoryName);
+      if (existingByName&&existingByName._id.toString()!==id) {
+        throw new AppError(
+          Messages.PRODUCT_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
+      }
 
     const updateData: Partial<ICategory> = {
       categoryName: data.categoryName,

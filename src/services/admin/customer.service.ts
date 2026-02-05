@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
@@ -21,6 +22,12 @@ export class CustomerService implements ICustomerServiceInterface {
   };
   toggleCustomerStatus = async (id: string) => {
     try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new AppError(
+          Messages.INVALID_CUSTOMER_ID,
+          HttpStatus.BAD_REQUEST
+        );
+      }
       const user = await this._customerRepository.findById(id);
 
       if (!user) {

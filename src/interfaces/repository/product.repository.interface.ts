@@ -4,7 +4,7 @@ import { IProduct, IProductDocument, PaginatedProducts } from "../../types/produ
 
 export default interface IProductRepository {
   findBySlug(slug: string): Promise<IProductDocument | null>;
-  findByName(productName: string): Promise<IProduct | null>;
+  findByName(productName: string): Promise<IProductDocument | null>;
   findBySlugOrName(slug: string, productName: string): Promise<IProductDocument | null>;
   create(data: Partial<IProductDocument>): Promise<IProductDocument>;
   update(

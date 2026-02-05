@@ -16,6 +16,9 @@ import { RewardRepository } from "../repositories/reward.repository";
 import { RewardService } from "../services/admin/reward.service";
 import { RewardController } from "../controllers/admin/rewardController";
 import adminOnly from "../middleware/admin.middleware";
+import { SearchRepository } from "../repositories/global.search.repository";
+import { GlobalSearchService } from "../services/admin/globalSearch.service";
+import { GlobalSearchController } from "../controllers/admin/globalSearchController";
 const router = Router();
 
 const categoryRepository= new CategoryRepository()
@@ -73,6 +76,11 @@ router.patch(
   customerController.toggleCustomerStatus
 );
 
+
+const globalSearchRepository=new SearchRepository()
+const globalSerachService=new GlobalSearchService(globalSearchRepository)
+const globalSearchController=new GlobalSearchController(globalSerachService)
+router.get("/global", globalSearchController.globalSearch);
 
 
 export default router;

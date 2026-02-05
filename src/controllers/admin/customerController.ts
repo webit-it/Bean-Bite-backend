@@ -4,8 +4,6 @@ import ICustomerServiceInterface from "../../interfaces/service/admin/customer.s
 import ICustomerController from "../../interfaces/controller/admin/customer.controller.interface";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ERROR_MESSAGES } from "../../constants/errorMessages";
-import { Types } from "mongoose";
-import AppError from "../../utils/AppError";
 import { Messages } from "../../constants/messages";
 
 
@@ -46,12 +44,7 @@ export class CustomerController implements ICustomerController{
   toggleCustomerStatus=async(req: Request, res: Response)=>{
      try {
       const { id } = req.params;
-      if (!Types.ObjectId.isValid(id)) {
-        throw new AppError(
-          Messages.INVALID_CUSTOMER_ID,
-          HttpStatus.BAD_REQUEST
-        );
-      }
+      
     const updatedData=await this._userService.toggleCustomerStatus(id);
       res.status(HttpStatus.OK).json({
         success: true,

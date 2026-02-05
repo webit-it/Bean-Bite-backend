@@ -1,8 +1,5 @@
 import { Types, UpdateQuery } from "mongoose";
-import {
-  ICategoryDocument,
-  PaginatedCategories
-} from "../../types/category.type";
+import {ICategoryDocument,PaginatedCategories} from "../../types/category.type";
 
 export default interface ICategoryRepository {
 
@@ -10,9 +7,9 @@ export default interface ICategoryRepository {
 
   findByName(categoryName: string): Promise<ICategoryDocument | null>;
 
-  create(
-    data: Partial<ICategoryDocument>
-  ): Promise<ICategoryDocument>;
+  findBySlugOrName(slug: string, categoryName: string): Promise<ICategoryDocument | null>;
+
+  create(data: Partial<ICategoryDocument>): Promise<ICategoryDocument>;
 
   update(
     id: string | Types.ObjectId,
@@ -22,7 +19,8 @@ export default interface ICategoryRepository {
   findById(id: string): Promise<ICategoryDocument | null>;
 
   findAll(): Promise<ICategoryDocument[]>;
- findAllPaginated(
+
+  findAllPaginated(
     page: number,
     limit: number,
     search?: string

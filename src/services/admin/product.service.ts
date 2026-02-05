@@ -116,12 +116,14 @@ export class ProductService implements IProductServiceInteface {
         discountType,
         discountValue,
       } = data;
+
       if (!Types.ObjectId.isValid(id)) {
         throw new AppError(
           Messages.INVALID_PRODUCT_ID,
           HttpStatus.BAD_REQUEST
         );
       }
+
       const regularPrice = Number(data.price);
       const discountValueForOffer = Number(data.discountValue);
       if (!productName || !description || !slug) {
@@ -130,6 +132,7 @@ export class ProductService implements IProductServiceInteface {
           HttpStatus.BAD_REQUEST
         );
       }
+
       if (discountType === "percentage" && discountValueForOffer > 100) {
         throw new AppError(
           Messages.PRODUCT_DISCOUNT_PERCENTAGE_LESS_THAN_100,
@@ -145,8 +148,15 @@ export class ProductService implements IProductServiceInteface {
       }
 
 
-      const existing = await this._productRepository.findBySlugOrName(slug, productName);
-      if (existing) {
+      const existingBySlug = await this._productRepository.findBySlug(slug);
+      if (existingBySlug&&existingBySlug._id.toString()!==id) {
+        throw new AppError(
+          Messages.PRODUCT_AlREADY_EXIST,
+          HttpStatus.NOT_FOUND
+        );
+      }
+      const existingByName = await this._productRepository.findByName(productName);
+      if (existingByName&&existingByName._id.toString()!==id) {
         throw new AppError(
           Messages.PRODUCT_AlREADY_EXIST,
           HttpStatus.NOT_FOUND

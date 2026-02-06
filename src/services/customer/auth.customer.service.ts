@@ -4,6 +4,7 @@ import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthService } from "../../interfaces/service/customer/auth.customer.interface";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
+import { CustomerMapper } from "../../mappers/customer.mapper";
 export class CustomerAuthService implements ICustomerAuthService {
     constructor(private _customerRepo: ICustomerAuthRepo) { }
 
@@ -16,7 +17,7 @@ export class CustomerAuthService implements ICustomerAuthService {
                     message: Messages.ENTER_VALIED_NAME,
                 };
             }
-            const globalPhoneRegex = /^\[1-9]\d{1,14}$/;
+            const globalPhoneRegex = /^[1-9]\d{10,14}$/;
 
             if (!globalPhoneRegex.test(phoneNumber)) {
                 throw {
@@ -44,10 +45,10 @@ export class CustomerAuthService implements ICustomerAuthService {
                 otpExpires
             }
             const customer = await this._customerRepo.create(data)
-
+           const mappedCustomer= await CustomerMapper.toResponse(customer)
             const token = await generateToken(customer._id.toString(), customer.isAdmin)
             const refreshToken = generateRefreshToken(customer._id.toString(), customer.isAdmin);
-            return { customer, token, refreshToken }
+            return { customer:mappedCustomer, token, refreshToken }
         } catch (error) {
             console.log("Error in register :", error)
             throw error

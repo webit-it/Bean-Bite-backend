@@ -16,7 +16,7 @@ export class CustomerAuthService implements ICustomerAuthService {
                     message: Messages.ENTER_VALIED_NAME,
                 };
             }
-            const globalPhoneRegex = /^\+[1-9]\d{1,14}$/;
+            const globalPhoneRegex = /^\[1-9]\d{1,14}$/;
 
             if (!globalPhoneRegex.test(phoneNumber)) {
                 throw {
@@ -24,7 +24,6 @@ export class CustomerAuthService implements ICustomerAuthService {
                     message: Messages.USE_VALIED_FORMATE,
                 };
             }
-
 
             const existingCustomer = await this._customerRepo.findByphoneNumber(phoneNumber)
             if (existingCustomer) {
@@ -54,7 +53,7 @@ export class CustomerAuthService implements ICustomerAuthService {
             throw error
         }
     }
-
+    
     async verifyOtp(phoneNumber: string, otp: string) {
         const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
 

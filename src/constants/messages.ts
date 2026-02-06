@@ -6,7 +6,6 @@ export const Messages = {
     LOGIN_FAILED: "Login Failed.",
     LOGOUT_FAILED: "Logout Failed.",
     LOGOUT_SUCCESS: "Logout successful.",
-    REGISTER_SUCCESS: "Registration successful.",
     TOKEN_EXPIRED: "Authentication token has expired.",
     INVALID_TOKEN: "Invalid authentication token.",
     INVALID_OTP: "Invalid OTP.",
@@ -70,5 +69,7 @@ export const Messages = {
     INVALID_CUSTOMER_ID:'Invalied customer id',
     CUSTOMER_STATUS_TOGGLED:'Successfully Customer status changed',
     ENTER_VALIED_NAME:'Please enter a valied name',
-    USE_VALIED_FORMATE:'Please enter valied phone number'
+    USE_VALIED_FORMATE:'Please enter valied phone number',
+ REGISTER_SUCCESS: "Registration successful.",
+
 };

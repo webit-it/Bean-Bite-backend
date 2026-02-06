@@ -40,8 +40,11 @@ export class CustomerAuthController {
         maxAge: refreshTokenMaxAge,
       });
 
-      res.status(HttpStatus.OK).json({success:true,customer});
-    } catch (error: unknown) {
+res.status(HttpStatus.OK).json({
+  success: true,
+  message: Messages.REGISTER_SUCCESS,
+  customer,
+});    } catch (error: unknown) {
       const serviceError = error as IServiceError;
       const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
       const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;

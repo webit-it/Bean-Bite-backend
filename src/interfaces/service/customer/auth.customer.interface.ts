@@ -1,10 +1,10 @@
-import { ICustomer, ICustomerDocument } from "../../../types/customer.type";
+import { CustomerResponseDTO, ICustomer, ICustomerDocument } from "../../../types/customer.type";
 
 export interface ICustomerAuthService {
     register(
         fullName: string, phoneNumber: string, password: string
     ): Promise<{
-        customer: ICustomer | null;
+        customer: CustomerResponseDTO | null;
         token: string;
         refreshToken: string;
     }>

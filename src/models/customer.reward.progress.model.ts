@@ -5,13 +5,13 @@ import { ICustomerRewardProgressDocument } from "../types/customerRewardProgress
 
 const UserRewardProgressSchema = new Schema<ICustomerRewardProgressDocument>(
   {
-    customerId: {
+    customer: {
       type: Schema.Types.ObjectId,
       ref: "Customer",
       required: true,
     },
 
-    rewardId: {
+    reward: {
       type: Schema.Types.ObjectId,
       ref: "Reward",
       required: true,
@@ -44,6 +44,13 @@ const UserRewardProgressSchema = new Schema<ICustomerRewardProgressDocument>(
     completedAt: {
       type: Date,
     },
+    redeemedProduct: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+    },
+    redeemedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -51,7 +58,7 @@ const UserRewardProgressSchema = new Schema<ICustomerRewardProgressDocument>(
 );
 
 UserRewardProgressSchema.index(
-  { userId: 1, rewardId: 1 },
+  { customerId: 1, rewardId: 1 },
   { unique: true }
 );
 

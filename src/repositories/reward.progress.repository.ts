@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import { ICustomerRewardProgressRepository } from "../interfaces/repository/reward.progress.repository.interface";
 import { CustomerRewardProgress } from "../models/customer.reward.progress.model";
 import { ICustomerRewardProgressDocument } from "../types/customerRewardProgress.type";
@@ -9,31 +9,67 @@ export class RewardProgressRepository extends BaseRepository<ICustomerRewardProg
         super(CustomerRewardProgress);
     }
     async getLatestActiveProgress(
-        customerId: string
-    ) {
-        const result = await CustomerRewardProgress.aggregate([
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null> {
+        return await CustomerRewardProgress.findOne(
             {
-                $match: {
-                    customerId: new mongoose.Types.ObjectId(customerId),
-                    status: "IN_PROGRESS",
-                },
+                customerId,
+                status: "IN_PROGRESS",
             },
-            { $sort: { level: -1, updatedAt: -1 } },
-            { $limit: 1 },
-        ]);
-
-        return result.length > 0 ? (result[0] as ICustomerRewardProgressDocument) : null;
+            null,
+            { session }
+        )
+            .sort({ level: -1, updatedAt: -1 })
+            .lean();
     }
 
-    // async getAllCustomerRewardProgress(
-    //     customerId: string
-    // ) {
-    //     return await CustomerRewardProgress.find({ customerId })
-    // }
     async incrementProgress(
-        customerId: string,
-        rewardId: string,
-    ) {
-        return await CustomerRewardProgress.findOneAndUpdate({ customerId, rewardId }, { $inc: { filledSlots: 1 } }, { new: true })
+        progressId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null> {
+        return await CustomerRewardProgress.findByIdAndUpdate(
+            progressId,
+            { $inc: { filledSlots: 1 } },
+            { new: true, session }
+        );
+    }
+
+    async markAsCompleted(
+        progressId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null> {
+        return await CustomerRewardProgress.findByIdAndUpdate(
+            progressId,
+            {
+                status: "COMPLETED",
+                completedAt: new Date(),
+            },
+            { new: true, session }
+        );
+    }
+
+    async getCompletedProgress(
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument[]> {
+        return await CustomerRewardProgress.find(
+            {
+                customerId,
+                status: "COMPLETED",
+            },
+            null,
+            { session }
+        )
+            .sort({ completedAt: -1 })
+            .lean();
+    }
+
+    async createProgress(
+        data: Partial<ICustomerRewardProgressDocument>,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument> {
+        const [progress] = await CustomerRewardProgress.create([data], { session });
+        return progress;
     }
 }

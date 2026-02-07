@@ -68,7 +68,7 @@ export const Messages = {
     //customer
     INVALID_CUSTOMER_ID:'Invalied customer id',
     CUSTOMER_STATUS_TOGGLED:'Successfully Customer status changed',
-    ENTER_VALIED_NAME:'Please enter a valied name',
+    ENTER_VALIED_NAME:'Username should not contain numbers',
     USE_VALIED_FORMATE:'Please enter valied phone number',
  REGISTER_SUCCESS: "Registration successful.",
 

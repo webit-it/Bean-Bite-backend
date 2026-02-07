@@ -25,6 +25,7 @@ const profileController=new ProfileController(profileService)
 router.route("/register").post(authController.register);
 router.route("/otp/verify").post(authController.verifyOtp);
 router.route("/otp/resend").post(authController.resendOtp);
+router.get("/check-customer", authController.verifyCustomer);
 router.route("/login").post(authController.login);
 router.get("/product/:slug", productController.getProductDetails);
 router.get("/product", productController.getProducts);

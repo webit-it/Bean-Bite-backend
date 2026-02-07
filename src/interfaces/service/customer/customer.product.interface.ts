@@ -1,4 +1,4 @@
-import { IProduct } from "../../../types/product.type";
+import { IProduct, ProductResponseDto } from "../../../types/product.type";
 
 export interface IProductService{
   getProducts(
@@ -7,12 +7,12 @@ export interface IProductService{
     search?: string,
     category?: string
   ): Promise<{
-    data: IProduct[];
+    data:  ProductResponseDto[];
     total: number;
     page: number;
     limit: number;
     totalPages: number;
   }>;   
   
-  getProductDetails(slug: string): Promise<IProduct>;
+  getProductDetails(slug: string): Promise<ProductResponseDto>;
 }

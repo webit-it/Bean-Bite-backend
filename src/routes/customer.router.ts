@@ -26,6 +26,7 @@ router.route("/register").post(authController.register);
 router.route("/otp/verify").post(authController.verifyOtp);
 router.route("/otp/resend").post(authController.resendOtp);
 router.post("/check-customer", authController.verifyCustomer);
+router.post("/reset-password", authController.resetPassword);
 router.route("/login").post(authController.login);
 router.get("/product/:slug", productController.getProductDetails);
 router.get("/product", productController.getProducts);

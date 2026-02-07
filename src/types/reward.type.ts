@@ -5,7 +5,7 @@ export interface IReward {
   slug: string;
   level: number;
   slotCount: number;
-  rewardProductIds: Types.ObjectId[];
+  rewardProducts: Types.ObjectId[]| IRewardProductPopulated[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,12 +13,25 @@ export interface IReward {
 export type IRewardDocument = HydratedDocument<IReward>;
 
 
+export interface RewardProductDto {
+  id: string;
+  productName: string;
+  image: string;
+}
+
 export interface RewardResponseDto {
+  id: Types.ObjectId;
   rewardName: string;
   slug: string;
   level: number;
   slotCount: number;
-  rewardProductIds: string[];
+  rewardProducts: RewardProductDto[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IRewardProductPopulated {
+  id: Types.ObjectId;
+  productName: string;
+  image: string;
 }

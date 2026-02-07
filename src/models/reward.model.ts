@@ -26,7 +26,7 @@ const RewardSchema = new Schema<IRewardDocument>(
             min: 4,
             max: 6,
         },
-        rewardProductIds: [
+        rewardProducts: [
             {
                 type: Schema.Types.ObjectId,
                 ref: "Product",

@@ -52,12 +52,13 @@ export class CustomerController implements ICustomerController{
           HttpStatus.BAD_REQUEST
         );
       }
-      await this._userService.toggleCustomerStatus(id);
-
+    const updatedData=await this._userService.toggleCustomerStatus(id);
       res.status(HttpStatus.OK).json({
         success: true,
         message: Messages.CUSTOMER_STATUS_TOGGLED,
+        data:updatedData
       });
+
     } catch (error: unknown) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,

@@ -1,4 +1,5 @@
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
+import { CategoryMiniDto, ICategoryPopulated } from "./category.type";
 
 export type ProductSearchQuery = {
   $or?: Array<{
@@ -12,7 +13,7 @@ export type ProductSearchQuery = {
 export interface IProduct {
   productName: string;
   slug: string;
-  category: mongoose.Types.ObjectId;
+  category: Types.ObjectId | ICategoryPopulated;
   price: number;
   discountType?: "percentage" | "fixed";
   discountValue?: number;
@@ -24,7 +25,27 @@ export interface IProduct {
   updatedAt: Date;
 }
 
-export type IProductDocument = HydratedDocument<IProduct>;
+export type IProductDocument = HydratedDocument<IProduct>; 
+ 
+
+
+export interface ProductResponseDto {
+  id: string;
+  productName: string;
+  slug: string;
+  category:CategoryMiniDto;
+  price: number;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
+  description: string;
+  finalPrice: number;
+  image: string;
+  status: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+
 
 export interface CreateProductDTO {
   productName: string;
@@ -35,6 +56,7 @@ export interface CreateProductDTO {
   image: Buffer;
   discountType?: "percentage" | "fixed";
   discountValue?: number;
+  status: boolean;
 }
 
 export interface UpdateProductDTO {
@@ -56,18 +78,20 @@ export interface GetProductsDTO {
   search?: string;
   category?: string;
 }
-
-export interface PaginatedProducts {
-  data: IProduct[];
+export interface PaginatedProducts<T> {
+  data: T[];
   total: number;
   page: number;
   limit: number;
 }
 
 export interface PaginatedProductsResponse {
-  data: IProduct[];
+  data: ProductResponseDto[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
 }
+
+
+

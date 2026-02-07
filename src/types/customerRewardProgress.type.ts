@@ -1,14 +1,16 @@
 import { HydratedDocument, Types } from "mongoose";
 
 export interface ICustomerRewardProgress {
-  customerId: Types.ObjectId;
-  rewardId:  Types.ObjectId;
+  customer: Types.ObjectId;
+  reward:  Types.ObjectId;
+  redeemedProduct:  Types.ObjectId;
   level: number;
   slotCount: number;
   filledSlots: number;
   status: RewardProgressStatus;
   completedAt: Date;
   createdAt: Date;
+  redeemedAt: Date;
   updatedAt: Date;
 }
 
@@ -24,13 +26,15 @@ export type ICustomerRewardProgressDocument = HydratedDocument<ICustomerRewardPr
 
 
 export interface CustomerRewardProgressResponseDto {
-  customerId: Types.ObjectId;
-  rewardId:  Types.ObjectId;
+  customer: Types.ObjectId;
+  reward:  Types.ObjectId;
+  radeemedProduct:  Types.ObjectId;
   level: number;
   slotCount: number;
   FilledSlots: number;
   status: RewardProgressStatus;
   completedAt: Date;
   createdAt: Date;
+  redeemedAt: Date;
   updatedAt: Date;
 }

@@ -15,26 +15,36 @@ export class CustomerAuthRepository extends BaseRepository<ICustomerDocument> im
         return await data.save()
     }
 
-     async findAllPaginated(page: number, limit: number, search?: string) {
-        const skip = (page - 1) * limit;
-        const query: CustomerSearchQuery = {};
-    
-        if (search) {
-          query.$or = [
-            { fullName: { $regex: search, $options: "i" } },
-            { phoneNumber: { $regex: search, $options: "i" } },
-          ];
-        }
-    
-        const [data, total] = await Promise.all([
-          this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-          this.model.countDocuments(query)
-        ]); 
-        return {
-          data,
-          total,
-          page,
-          limit
-        };
-      }
+   async findAllPaginated(page: number, limit: number, search?: string) {
+  const skip = (page - 1) * limit;
+
+  const query: CustomerSearchQuery = {
+    isAdmin: false,
+  };
+
+  if (search) {
+    query.$or = [
+      { fullName: { $regex: search, $options: "i" } },
+      { phoneNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [data, total] = await Promise.all([
+    this.model
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    this.model.countDocuments(query),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
+}
+
 } 

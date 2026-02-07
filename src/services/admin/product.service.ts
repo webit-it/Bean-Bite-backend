@@ -7,6 +7,7 @@ import { calculateFinalPrice } from "../../utils/calculateFinalPrice";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import AppError from "../../utils/AppError";
+import { ProductMapper } from "../../mappers/product.mapper";
 
 
 export class ProductService implements IProductServiceInteface {
@@ -15,7 +16,9 @@ export class ProductService implements IProductServiceInteface {
   ) { }
 
   createProduct = async (data: CreateProductDTO) => {
-    const {
+
+    try {
+       const {
       productName,
       description,
       slug,
@@ -40,7 +43,7 @@ export class ProductService implements IProductServiceInteface {
       discountValue
     );
 
-    return this._productRepository.create({
+   const productDoc= await this._productRepository.create({
       productName,
       slug,
       category: new mongoose.Types.ObjectId(category),
@@ -52,19 +55,29 @@ export class ProductService implements IProductServiceInteface {
       discountValue,
       status: true,
     });
-  }
-  getProductForEdit = async (slug: string) => {
-    try {
-      const product = await this._productRepository.findBySlug(slug);
 
-      if (!product) {
+   return ProductMapper.toResponse(productDoc);
+  
+      } catch (error) {
+        console.log("Create category error :", error);
+        throw error;
+      
+    }
+
+
+  }
+  getProductBySlug= async (slug: string) => {
+    try {
+      const productDoc = await this._productRepository.findBySlug(slug);
+
+      if (!productDoc) {
         throw new AppError(
           Messages.PRODUCT_NOT_FOUND,
           HttpStatus.NOT_FOUND
         );
       }
 
-      return product;
+      return ProductMapper.toResponse(productDoc);
     } catch (error) {
       console.log("Get category for edit error:", error);
       throw error;
@@ -110,56 +123,37 @@ export class ProductService implements IProductServiceInteface {
         updateData.image = imageUrl;
       }
 
-      const updated = await this._productRepository.update(id, updateData);
+      const updatedDoc = await this._productRepository.update(id, updateData);
 
-      if (!updated) {
+      if (!updatedDoc) {
         throw {
           status: HttpStatus.NOT_FOUND,
           message: Messages.UPDATE_FAILED,
         };
       }
 
-      return updated;
+      return ProductMapper.toResponse(updatedDoc);
     } catch (error) {
       console.log("Update category error:", error);
       throw error;
     }
   };
   getAllProducts = async (page: number, limit: number, search?: string) => {
-    const result = await this._productRepository.findAllPaginated(page, limit, search);
-    return {
-      data: result.data,
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: Math.ceil(result.total / result.limit)
-    };
+   
+  const result = await this._productRepository.findAllPaginated(
+  page,
+  limit,
+  search
+);
+
+return {
+  data: result.data.map(ProductMapper.toResponse), 
+  total: result.total,
+  page: result.page,
+  limit: result.limit,
+  totalPages: Math.ceil(result.total / limit),
+};
+
   };
-  toggleProductStatus = async (id: string) => {
-    try {
-      const product = await this._productRepository.findById(id);
 
-      if (!product) {
-        throw new AppError(
-          Messages.PRODUCT_NOT_FOUND,
-          HttpStatus.NOT_FOUND
-        );
-      }
-
-      const updated = await this._productRepository.update(id, {
-        status: !product.status,
-      });
-
-      if (!updated) {
-        throw new AppError(
-          Messages.UPDATE_FAILED,
-          HttpStatus.NOT_FOUND
-        );
-      }
-
-      return updated;
-    } catch (error) {
-      throw error;
-    }
-  };
 }

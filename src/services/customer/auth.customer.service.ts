@@ -1,10 +1,12 @@
 import bcrypt from "bcrypt"
-import { generateRefreshToken, generateToken } from "../../utils/jwt";
+import { generateRefreshToken, generateToken, verifyAccessToken } from "../../utils/jwt";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthService } from "../../interfaces/service/customer/auth.customer.interface";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 import { CustomerMapper } from "../../mappers/customer.mapper";
+
+
 export class CustomerAuthService implements ICustomerAuthService {
     constructor(private _customerRepo: ICustomerAuthRepo) { }
 
@@ -45,16 +47,16 @@ export class CustomerAuthService implements ICustomerAuthService {
                 otpExpires
             }
             const customer = await this._customerRepo.create(data)
-           const mappedCustomer= await CustomerMapper.toResponse(customer)
+            const mappedCustomer = await CustomerMapper.toResponse(customer)
             const token = await generateToken(customer._id.toString(), customer.isAdmin)
             const refreshToken = generateRefreshToken(customer._id.toString(), customer.isAdmin);
-            return { customer:mappedCustomer, token, refreshToken }
+            return { customer: mappedCustomer, token, refreshToken }
         } catch (error) {
             console.log("Error in register :", error)
             throw error
         }
     }
-    
+
     async verifyOtp(phoneNumber: string, otp: string) {
         const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
 
@@ -76,9 +78,11 @@ export class CustomerAuthService implements ICustomerAuthService {
         customer.otp = null;
         customer.otpExpires = null;
 
+        const token = await generateToken(customer._id.toString(), customer.isAdmin)
+
         await this._customerRepo.saveCustomer(customer);
         return {
-            customer,
+            token,
             message: "OTP verified successfully",
         };
     }
@@ -101,6 +105,28 @@ export class CustomerAuthService implements ICustomerAuthService {
         console.log(`New OTP for ${phoneNumber}: ${newOtp}`);
         return "OTP resent successfully";
     }
+    resetPassword = async (token: string, password: string) => {
+        try {
+            const decoded = verifyAccessToken(
+                token,
+            ) as { id: string; isAdmin: boolean };
+            const customer = await this._customerRepo.findById(decoded.id);
+
+            if (!customer) {
+                throw { status: HttpStatus.BAD_REQUEST, message: Messages.CUSTOMER_NOT_FOUND };
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            customer.password = hashedPassword;
+            await this._customerRepo.saveCustomer(customer);
+
+            return customer;
+        } catch (error) {
+            console.log("Error in customer change password", error);
+            throw error;
+        }
+    };
     async Login(phoneNumber: string, password: string) {
 
         const user = await this._customerRepo.findByphoneNumber(phoneNumber);

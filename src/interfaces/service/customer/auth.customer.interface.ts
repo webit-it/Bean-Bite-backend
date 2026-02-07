@@ -8,14 +8,14 @@ export interface ICustomerAuthService {
         token: string;
         refreshToken: string;
     }>
- 
+
 
     verifyOtp(
-       phoneNumber: string, otp: string
+        phoneNumber: string, otp: string
     ): Promise<{
-        customer: ICustomerDocument;
+        token: string;
         message: string;
-    }>; 
+    }>;
 
     resendOtp(phoneNumber: string): Promise<string>;
 
@@ -28,4 +28,5 @@ export interface ICustomerAuthService {
         refreshToken: string;
     }>;
     verifyCustomer(phoneNumber: string): Promise<ICustomer>;
+    resetPassword(phoneNumber: string, password: string): Promise<ICustomer>
 }

@@ -4,7 +4,7 @@ import { CustomerRewardProgress } from "../models/customer.reward.progress.model
 import { ICustomerRewardProgressDocument } from "../types/customerRewardProgress.type";
 import { BaseRepository } from "./base.reposiory";
 
-export class RewardProgressRepository
+export class RewardProgressRepository 
     extends BaseRepository<ICustomerRewardProgressDocument>
     implements ICustomerRewardProgressRepository {
     constructor() {
@@ -15,7 +15,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
         return CustomerRewardProgress.findOne({
-            customer:customerId,
+            customer: customerId,
             status: "IN_PROGRESS",
         })
             .sort({ level: -1, updatedAt: -1 })
@@ -55,8 +55,11 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument[]> {
         return CustomerRewardProgress.find({
-            customer:customerId,
+            customer: customerId,
             status: "COMPLETED",
+        }).populate({
+            path: "redeemedProduct",
+            select: "productName image slug",
         })
             .sort({ completedAt: -1 })
             .session(session ?? null)

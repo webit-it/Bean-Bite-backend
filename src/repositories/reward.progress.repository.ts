@@ -15,7 +15,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
         return CustomerRewardProgress.findOne({
-            customerId,
+            customer:customerId,
             status: "IN_PROGRESS",
         })
             .sort({ level: -1, updatedAt: -1 })
@@ -35,6 +35,7 @@ export class RewardProgressRepository
     }
     async markAsCompleted(
         progressId: mongoose.Types.ObjectId,
+        redeemedProductId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
         return CustomerRewardProgress.findByIdAndUpdate(
@@ -42,6 +43,8 @@ export class RewardProgressRepository
             {
                 status: "COMPLETED",
                 completedAt: new Date(),
+                redeemedProduct: redeemedProductId,
+                redeemedAt: new Date(),
             },
             { new: true }
         )
@@ -52,7 +55,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument[]> {
         return CustomerRewardProgress.find({
-            customerId,
+            customer:customerId,
             status: "COMPLETED",
         })
             .sort({ completedAt: -1 })

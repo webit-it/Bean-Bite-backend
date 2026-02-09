@@ -28,6 +28,7 @@ export class QrController implements IQrController {
         try {
             const { code } = req.body;
             const customerId = req.user?.id;
+             console.log("verify working,customerId",req.user,code)
             if (!customerId) {
                 res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS });
                 return

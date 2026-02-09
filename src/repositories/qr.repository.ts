@@ -1,3 +1,4 @@
+import { ClientSession } from "mongoose";
 import { IQrRepository } from "../interfaces/repository/qr.repository.interface";
 import { QrCode } from "../models/qrCode.model";
 import { IQrCodeDocument } from "../types/qr.type";
@@ -7,10 +8,33 @@ export class QrRepository extends BaseRepository<IQrCodeDocument> implements IQr
     constructor() {
         super(QrCode)
     }
-    async findByCode(code: string) {
-        return await QrCode.findOne({ code })
+    async findByCode(
+        code: string,
+        session?: ClientSession
+    ) {
+        return QrCode.findOne({ code })
+            .session(session ?? null)
+            .lean();
     }
-    async markAsUsed(code: string) {
-        return await QrCode.findOneAndUpdate({ code: code }, { isUsed: true }, { new: true })
+    async markAsUsedIfValid(
+        code: string,
+        session?: ClientSession
+    ) {
+        return QrCode.findOneAndUpdate(
+            {
+                code,
+                isUsed: false,
+            },
+            {
+                $set: {
+                    isUsed: true,
+                    usedAt: new Date(),
+                },
+            },
+            {
+                new: true,
+                session,
+            }
+        );
     }
 }

@@ -7,18 +7,6 @@ interface IProductPopulated {
   image: string;
 }
 
-<<<<<<< HEAD
-  export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto => {
-    return {
-      rewardName: reward.rewardName,
-      slug: reward.slug,
-      level: reward.level,
-      slotCount: reward.slotCount,
-      rewardProductIds: reward.rewardProductIds.map(id => id.toString()),
-      createdAt: reward.createdAt,
-      updatedAt: reward.updatedAt
-    };
-=======
 export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto => {
   const rewardProducts: RewardProductDto[] = reward.rewardProducts
     .filter(
@@ -31,7 +19,7 @@ export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto 
       image: product.image,
     }));
   return {
-    id:reward._id,
+    id: reward._id,
     rewardName: reward.rewardName,
     slug: reward.slug,
     level: reward.level,
@@ -39,11 +27,10 @@ export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto 
     rewardProducts,
     createdAt: reward.createdAt,
     updatedAt: reward.updatedAt,
->>>>>>> feature/reward-management
-  };
+  }}
 
-export const toRewardResponseDtoArray = (
-  rewards: IRewardDocument[]
-): RewardResponseDto[] => {
-  return rewards.map(toRewardResponseDto);
-};
+  export const toRewardResponseDtoArray = (
+    rewards: IRewardDocument[]
+  ): RewardResponseDto[] => {
+    return rewards.map(toRewardResponseDto);
+  };

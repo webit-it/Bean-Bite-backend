@@ -14,8 +14,5 @@ export interface IQrService {
 export interface IVerifyQrResponse {
     qrVerified: boolean;
     message: string;
-    progress: {
-        current: ICustomerRewardProgressDocument | null;
-        completed: ICustomerRewardProgressDocument[];
-    };
+    progress: ICustomerRewardProgressDocument | null;
 }

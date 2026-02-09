@@ -7,12 +7,9 @@ import logger from "./logger";
 import connectDB from "./config/db";
 import customerRouter from "./routes/customer.router"
 import adminRouter from "./routes/admin.router"
-<<<<<<< HEAD
 import qrRouter from "./routes/qr.router"
-=======
 import router from "./routes/customer.router";
 import { multerErrorHandler } from "./middleware/multerErrorHandler";
->>>>>>> feature/reward-management
 
 
 const app=express()
@@ -31,12 +28,9 @@ app.use(cors({
 
 app.use("/api/customer",customerRouter)
 app.use("/api/admin",adminRouter)
-<<<<<<< HEAD
 app.use("/api/qr",qrRouter)
-=======
 app.use("/api", router); 
 app.use(multerErrorHandler); 
->>>>>>> feature/reward-management
 
 const PORT = process.env.PORT||3001 ;
 

@@ -9,7 +9,7 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
         super(Reward);
     }
     async findByLevel(level: number,session?: ClientSession) {
-        return Reward.findOne({ level }).select("rewardProducts level").session(session ?? null);
+        return Reward.findOne({ level }).session(session ?? null);
     }
     async findByName(name: string): Promise<IReward | null> {
         return Reward.findOne({ rewardName: name });

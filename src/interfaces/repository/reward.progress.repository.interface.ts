@@ -1,8 +1,11 @@
 import mongoose, { ClientSession } from "mongoose"
-import { ICustomerRewardProgress, ICustomerRewardProgressDocument } from "../../types/customerRewardProgress.type"
+import {  ICustomerRewardProgressDocument } from "../../types/customerRewardProgress.type"
 
 export interface ICustomerRewardProgressRepository {
-    create(data: Partial<ICustomerRewardProgress>): Promise<ICustomerRewardProgressDocument>
+     createProgress(
+        data: Partial<ICustomerRewardProgressDocument>,
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument>
     getLatestActiveProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
@@ -13,6 +16,7 @@ export interface ICustomerRewardProgressRepository {
     ): Promise<ICustomerRewardProgressDocument | null>
     markAsCompleted(
         progressId: mongoose.Types.ObjectId,
+        redeemedProductId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null>
     getCompletedProgress(

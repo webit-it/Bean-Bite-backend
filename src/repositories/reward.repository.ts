@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { ClientSession, Types } from "mongoose";
 import { IRewardRepository } from "../interfaces/repository/reward.repository.interface";
 import { Reward } from "../models/reward.model";
 import { IReward, IRewardDocument } from "../types/reward.type";
@@ -8,8 +8,8 @@ export class RewardRepository extends BaseRepository<IRewardDocument> implements
     constructor() {
         super(Reward);
     }
-    async findByLevel(level: number) {
-        return Reward.findOne({ level }).select("rewardProducts level");
+    async findByLevel(level: number,session?: ClientSession) {
+        return Reward.findOne({ level }).session(session ?? null);
     }
     async findByName(name: string): Promise<IReward | null> {
         return Reward.findOne({ rewardName: name });

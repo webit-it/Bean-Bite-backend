@@ -19,7 +19,7 @@ export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto 
       image: product.image,
     }));
   return {
-    id:reward._id,
+    id: reward._id,
     rewardName: reward.rewardName,
     slug: reward.slug,
     level: reward.level,
@@ -27,11 +27,10 @@ export const toRewardResponseDto = (reward: IRewardDocument): RewardResponseDto 
     rewardProducts,
     createdAt: reward.createdAt,
     updatedAt: reward.updatedAt,
-  };
-};
+  }}
 
-export const toRewardResponseDtoArray = (
-  rewards: IRewardDocument[]
-): RewardResponseDto[] => {
-  return rewards.map(toRewardResponseDto);
-};
+  export const toRewardResponseDtoArray = (
+    rewards: IRewardDocument[]
+  ): RewardResponseDto[] => {
+    return rewards.map(toRewardResponseDto);
+  };

@@ -7,6 +7,7 @@ import logger from "./logger";
 import connectDB from "./config/db";
 import customerRouter from "./routes/customer.router"
 import adminRouter from "./routes/admin.router"
+import qrRouter from "./routes/qr.router"
 import router from "./routes/customer.router";
 import { multerErrorHandler } from "./middleware/multerErrorHandler";
 
@@ -27,6 +28,7 @@ app.use(cors({
 
 app.use("/api/customer",customerRouter)
 app.use("/api/admin",adminRouter)
+app.use("/api/qr",qrRouter)
 app.use("/api", router); 
 app.use(multerErrorHandler); 
 

@@ -1,5 +1,5 @@
-import { ICustomerRewardProgressDocument } from "../../../types/customerRewardProgress.type";
-import { IQRCode, QrGenerateResponseDto } from "../../../types/qr.type";
+import { CustomerRewardProgressResponseDto, ICustomerRewardProgressDocument } from "../../../types/customerRewardProgress.type";
+import { QrGenerateResponseDto } from "../../../types/qr.type";
 
 export interface IQrService {
     generate(): Promise<QrGenerateResponseDto>
@@ -7,12 +7,9 @@ export interface IQrService {
         code: string,
         customerId: string
     ): Promise<IVerifyQrResponse>;
-
 }
-
-
 export interface IVerifyQrResponse {
     qrVerified: boolean;
     message: string;
-    progress: ICustomerRewardProgressDocument | null;
+    progress: CustomerRewardProgressResponseDto  | null;
 }

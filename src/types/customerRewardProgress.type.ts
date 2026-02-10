@@ -28,7 +28,7 @@ export type ICustomerRewardProgressDocument = HydratedDocument<ICustomerRewardPr
 export interface CustomerRewardProgressResponseDto {
   customer: Types.ObjectId;
   reward:  Types.ObjectId;
-  radeemedProduct:  Types.ObjectId| RedeemedProductDto;
+  radeemedProduct: Types.ObjectId | RedeemedProductDto | null;
   level: number;
   slotCount: number;
   FilledSlots: number;

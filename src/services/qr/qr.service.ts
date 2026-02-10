@@ -11,6 +11,7 @@ import { IRewardRepository } from "../../interfaces/repository/reward.repository
 import mongoose, { Types } from "mongoose";
 import { IRewardProductPopulated } from "../../types/reward.type";
 import { ICustomerRewardProgressDocument } from "../../types/customerRewardProgress.type";
+import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
 
 export class QRService implements IQrService {
     constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository) { }
@@ -70,7 +71,7 @@ export class QRService implements IQrService {
                     };
                 }
 
-                const newProgress =await this._customerProgress.createProgress(
+                const newProgress = await this._customerProgress.createProgress(
                     {
                         customer: customerObjectId,
                         reward: firstReward._id,
@@ -155,19 +156,16 @@ export class QRService implements IQrService {
                 }
             }
 
-            const currentProgress =
-                await this._customerProgress.getLatestActiveProgress(
-                    customerObjectId,
-                    session
-                );
-
+            const mappedProgress = responseProgress
+                ? CustomerRewardProgressMapper.toResponse(responseProgress)
+                : null;
 
             await session.commitTransaction();
 
             return {
                 qrVerified: true,
                 message,
-                progress: responseProgress,
+                progress: mappedProgress,
             };
 
         } catch (error) {

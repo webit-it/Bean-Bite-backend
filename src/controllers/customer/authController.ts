@@ -57,7 +57,7 @@ export class CustomerAuthController {
   login = async (req: Request, res: Response) => {
     const { phoneNumber, password } = req.body;
     try {
-      const { user, token, refreshToken } = await this._customerAuthService.Login(phoneNumber, password);
+      const { customer, token, refreshToken } = await this._customerAuthService.Login(phoneNumber, password);
 
       res.cookie("access_token", token, {
         httpOnly: true,
@@ -73,7 +73,7 @@ export class CustomerAuthController {
         maxAge: refreshTokenMaxAge,
       });
 
-      res.status(HttpStatus.OK).json({ success: true, user });
+      res.status(HttpStatus.OK).json({ success: true, customer });
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
       const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;

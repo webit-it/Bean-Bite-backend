@@ -129,27 +129,27 @@ export class CustomerAuthService implements ICustomerAuthService {
     };
     async Login(phoneNumber: string, password: string) {
 
-        const user = await this._customerRepo.findByphoneNumber(phoneNumber);
+        const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
 
-        if (!user) {
+        if (!customer) {
             throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_NOT_FOUND };
         }
 
-        if (!user.password) {
+        if (!customer.password) {
             throw { status: HttpStatus.BAD_REQUEST, message: "Password is missing for this user" };
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, customer.password);
         if (!isMatch) {
             throw { status: HttpStatus.UNAUTHORIZED, message: Messages.PASSWORD_DO_NOT_MATCH };
         }
 
-        const id = typeof user._id === "string" ? user._id : String(user._id);
-        const token = generateToken(id, user.isAdmin);
-        const refreshToken = generateRefreshToken(id, user.isAdmin);
-
+        const id = typeof customer._id === "string" ? customer._id : String(customer._id);
+        const token = generateToken(id, customer.isAdmin);
+        const refreshToken = generateRefreshToken(id, customer.isAdmin);
+        const mappedCustomer=await CustomerMapper.toResponse(customer)
         return {
-            user,
+            customer:mappedCustomer,
             token,
             refreshToken,
         };

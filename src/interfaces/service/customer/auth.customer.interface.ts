@@ -23,7 +23,7 @@ export interface ICustomerAuthService {
         phoneNumber: string,
         password: string
     ): Promise<{
-        user: ICustomer;
+        customer: CustomerResponseDTO;
         token: string;
         refreshToken: string;
     }>;

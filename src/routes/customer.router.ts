@@ -30,7 +30,7 @@ const productService=new ProductService(productRepo)
 const productController=new ProductController(productService)
 router.get("/product/:slug", productController.getProductDetails);
 router.get("/product", productController.getProducts);
-router.get('/relatedProducts/:slug',productController.relatedProducts)
+router.get('/product/related/:slug',productController.relatedProducts)
    
 
 

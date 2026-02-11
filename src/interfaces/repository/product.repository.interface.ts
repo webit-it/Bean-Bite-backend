@@ -21,4 +21,9 @@ export default interface IProductRepository {
     category?: string,
     exclude?: string[]
   ): Promise<PaginatedProducts<IProductDocument>>;
+
+findAllRelated(
+  categoryId: Types.ObjectId,
+  excludeProductId: Types.ObjectId
+): Promise<IProductDocument[]>
 }

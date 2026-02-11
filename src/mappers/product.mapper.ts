@@ -30,6 +30,11 @@ export class ProductMapper {
       status: doc.status,
     };
   }
+  static toResponseList(
+  products: IProductDocument[]
+): ProductResponseDto[] {
+  return products.map(product => this.toResponse(product));
+}
 }
 
 

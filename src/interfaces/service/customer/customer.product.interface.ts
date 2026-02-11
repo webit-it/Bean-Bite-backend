@@ -15,4 +15,5 @@ export interface IProductService{
   }>;   
   
   getProductDetails(slug: string): Promise<ProductResponseDto>;
+  getRelatedProducts(slug:string): Promise<ProductResponseDto[]>; 
 }

@@ -6,7 +6,6 @@ import { ICustomerAuthService } from "../../interfaces/service/customer/auth.cus
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 export class CustomerAuthService implements ICustomerAuthService {
     constructor(private _customerRepo: ICustomerAuthRepo) { }
-
     register = async (fullName: string, phoneNumber: string, password: string) => {
         try {
             const existingCustomer=await this._customerRepo.findByphoneNumber(phoneNumber)
@@ -37,7 +36,6 @@ export class CustomerAuthService implements ICustomerAuthService {
             throw error
         }
     }
-
     async verifyOtp(phoneNumber: string, otp: string) {
         const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
 
@@ -113,7 +111,6 @@ export class CustomerAuthService implements ICustomerAuthService {
     verifyCustomer = async (phoneNumber: string) => {
         try {
             const customer = await this._customerRepo.findByphoneNumber(phoneNumber);
-
             if (!customer) {
                 throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_NOT_FOUND };
             }

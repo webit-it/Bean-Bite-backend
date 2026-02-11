@@ -1,9 +1,8 @@
 import { HydratedDocument, Types } from "mongoose";
-
 export interface ICustomerRewardProgress {
   customer: Types.ObjectId;
-  reward:  Types.ObjectId;
-  redeemedProduct:  Types.ObjectId| RedeemedProductDto;
+  reward: Types.ObjectId;
+  redeemedProduct?: Types.ObjectId;
   level: number;
   slotCount: number;
   filledSlots: number;
@@ -13,6 +12,23 @@ export interface ICustomerRewardProgress {
   redeemedAt: Date;
   updatedAt: Date;
 }
+
+
+
+export interface CustomerRewardProgressResponseDto {
+  customer: string;
+  reward: string;
+  redeemedProduct: RedeemedProductDto | null;
+  level: number;
+  slotCount: number;
+  filledSlots: number;
+  status: RewardProgressStatus;
+  completedAt: Date;
+  createdAt: Date;
+  redeemedAt: Date;
+  updatedAt: Date;
+}
+
 
 
 type RewardProgressStatus =
@@ -25,24 +41,15 @@ type RewardProgressStatus =
 export type ICustomerRewardProgressDocument = HydratedDocument<ICustomerRewardProgress>;
 
 
-export interface CustomerRewardProgressResponseDto {
-  customer: Types.ObjectId;
-  reward:  Types.ObjectId;
-  radeemedProduct: Types.ObjectId | RedeemedProductDto | null;
-  level: number;
-  slotCount: number;
-  FilledSlots: number;
-  status: RewardProgressStatus;
-  completedAt: Date;
-  createdAt: Date;
-  redeemedAt: Date;
-  updatedAt: Date;
-}
+export type ICustomerRewardProgressPopulated =
+  Omit<ICustomerRewardProgress, "redeemedProduct"> & {
+    redeemedProduct?: RedeemedProductDto & { _id: Types.ObjectId };
+  };
 
 
 export interface RedeemedProductDto {
-  id: Types.ObjectId;
-  name: string;
+  id: string;
+  productName: string;
   slug: string;
   image: string;
 }

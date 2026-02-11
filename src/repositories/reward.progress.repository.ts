@@ -1,10 +1,10 @@
 import mongoose, { ClientSession } from "mongoose";
 import { ICustomerRewardProgressRepository } from "../interfaces/repository/reward.progress.repository.interface";
 import { CustomerRewardProgress } from "../models/customer.reward.progress.model";
-import { ICustomerRewardProgressDocument } from "../types/customerRewardProgress.type";
+import { ICustomerRewardProgressDocument, ICustomerRewardProgressPopulated } from "../types/customerRewardProgress.type";
 import { BaseRepository } from "./base.reposiory";
 
-export class RewardProgressRepository 
+export class RewardProgressRepository
     extends BaseRepository<ICustomerRewardProgressDocument>
     implements ICustomerRewardProgressRepository {
     constructor() {
@@ -38,7 +38,8 @@ export class RewardProgressRepository
         redeemedProductId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
-        return CustomerRewardProgress.findByIdAndUpdate(
+
+        const query = CustomerRewardProgress.findByIdAndUpdate(
             progressId,
             {
                 status: "COMPLETED",
@@ -47,9 +48,18 @@ export class RewardProgressRepository
                 redeemedAt: new Date(),
             },
             { new: true }
-        )
-            .session(session ?? null);
+        ).populate({
+            path: "redeemedProduct",
+            select: "productName image slug",
+        });
+
+        if (session) {
+            query.session(session);
+        }
+        return query.exec();
     }
+
+
     async getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
@@ -75,4 +85,16 @@ export class RewardProgressRepository
         );
         return progress;
     }
-}
+    async findByIdWithProduct(
+        progressId: mongoose.Types.ObjectId
+    ) {
+        return CustomerRewardProgress
+            .findById(progressId)
+            .populate({
+                path: "redeemedProduct",
+                select: "productName slug image",
+            })
+            .lean<ICustomerRewardProgressPopulated>()
+            .exec();
+    }
+}   

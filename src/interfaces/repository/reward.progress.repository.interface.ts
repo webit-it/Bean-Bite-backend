@@ -1,8 +1,8 @@
 import mongoose, { ClientSession } from "mongoose"
-import {  ICustomerRewardProgressDocument } from "../../types/customerRewardProgress.type"
+import { ICustomerRewardProgressDocument, ICustomerRewardProgressPopulated } from "../../types/customerRewardProgress.type"
 
 export interface ICustomerRewardProgressRepository {
-     createProgress(
+    createProgress(
         data: Partial<ICustomerRewardProgressDocument>,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument>
@@ -23,4 +23,7 @@ export interface ICustomerRewardProgressRepository {
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument[]>
+    findByIdWithProduct(
+        progressId: mongoose.Types.ObjectId
+    ): Promise<ICustomerRewardProgressPopulated  | null>;
 }

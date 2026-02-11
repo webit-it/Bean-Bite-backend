@@ -38,11 +38,14 @@ export class QRService implements IQrService {
     verify = async (code: string, customerId: string) => {
         const session = await mongoose.startSession();
         session.startTransaction();
+
+        let responseProgressId: mongoose.Types.ObjectId | null = null;
+        let message = Messages.QR_VERIFIED;
+
         try {
             const customerObjectId = new mongoose.Types.ObjectId(customerId);
 
             const qr = await this._qrRepo.markAsUsedIfValid(code, session);
-
             if (!qr) {
                 throw new AppError(Messages.INVALID_QR, HttpStatus.BAD_REQUEST);
             }
@@ -56,9 +59,7 @@ export class QRService implements IQrService {
                     customerObjectId,
                     session
                 );
-            let message = Messages.QR_VERIFIED;
 
-            let responseProgress: ICustomerRewardProgressDocument | null = null;
             if (!activeProgress) {
                 const firstReward = await this._rewardRepo.findByLevel(1, session);
 
@@ -83,8 +84,9 @@ export class QRService implements IQrService {
                     session
                 );
 
-                responseProgress = newProgress;
+                responseProgressId = newProgress._id;
                 message = Messages.REWARD_PROGRESS_STARTED;
+
             } else {
                 if (activeProgress.status !== "IN_PROGRESS") {
                     throw new AppError(
@@ -118,16 +120,20 @@ export class QRService implements IQrService {
                             HttpStatus.INTERNAL_SERVER_ERROR
                         );
                     }
-                    const redeemedProduct = this.pickRandomProduct(reward.rewardProducts);
 
+                    const redeemedProduct = this.pickRandomProduct(
+                        reward.rewardProducts
+                    );
+                    console.log(redeemedProduct, "redeemedProduct progres")
                     const completedProgress =
                         await this._customerProgress.markAsCompleted(
                             updatedProgress._id,
                             redeemedProduct,
                             session
                         );
+                    console.log(completedProgress, "completed progres")
 
-                    responseProgress = completedProgress;
+                    responseProgressId = completedProgress!._id;
 
                     const nextLevel = updatedProgress.level + 1;
                     const nextReward =
@@ -150,17 +156,24 @@ export class QRService implements IQrService {
                     } else {
                         message = Messages.ALL_REWARDS_COMPLETED;
                     }
+
                 } else {
-                    responseProgress = updatedProgress;
+                    responseProgressId = updatedProgress._id;
                     message = Messages.REWARD_PROGRESS_UPDATED;
                 }
             }
 
-            const mappedProgress = responseProgress
-                ? CustomerRewardProgressMapper.toResponse(responseProgress)
+            await session.commitTransaction();
+
+            const populatedProgress = responseProgressId
+                ? await this._customerProgress.findByIdWithProduct(
+                    responseProgressId
+                )
                 : null;
 
-            await session.commitTransaction();
+            const mappedProgress = populatedProgress
+                ? CustomerRewardProgressMapper.toResponse(populatedProgress)
+                : null;
 
             return {
                 qrVerified: true,
@@ -176,6 +189,7 @@ export class QRService implements IQrService {
             session.endSession();
         }
     };
+
     private pickRandomProduct(
         products: Types.ObjectId[] | IRewardProductPopulated[]
     ): Types.ObjectId {

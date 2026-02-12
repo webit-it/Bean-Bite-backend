@@ -10,16 +10,25 @@ export type CustomerSearchQuery = {
 
 
 
+
 export interface ICustomer {
   fullName: string;
   phoneNumber: string;
   password: string;
-  isActive:boolean;
+  isActive: boolean;
   isAdmin: boolean;
-  otp?: string|null;
-  otpExpires?: Date|null;
-  createdAt:Date;
+
+  /** 🔐 Auth */
+  refreshToken?: string | null;
+
+  /** 🔢 OTP */
+  otp?: string | null;
+  otpExpires?: Date | null;
+
+  createdAt: Date;
 }
+
+export interface ICustomerDocument extends ICustomer, Document {}
 
 export interface ICustomerDocument extends ICustomer, Document {}
 

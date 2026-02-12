@@ -82,4 +82,9 @@ export const Messages = {
     ENTER_VALIED_NAME: 'Username should not contain numbers',
     USE_VALIED_FORMATE: 'Please enter valied phone number',
     REGISTER_SUCCESS: "Registration successful.",
+    REFRESH_TOKEN_MISSING:'Refresh token missing',
+    INVALID_REFRESH_TOCKEN:'Invalied Refresh Token',
+    REFRESH_TOKEN_EXPIRED:'Refresh token expired',
+    ACCESS_TOKEN_EXPIRED:'Access  token expired',
+    OTP_VERIFIED:"OTP verified successfully",
 };

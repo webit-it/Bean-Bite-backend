@@ -49,3 +49,14 @@ export const verifyRefreshToken = (token: string): CustomJwtPayload => {
     process.env.REFRESH_JWT_SECRET as string
   ) as CustomJwtPayload;
 };
+
+export const getCookieOptions = (maxAge: number) => {
+  const isProduction = process.env.NODE_ENV === "production"
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" as const : "lax" as const,
+    maxAge
+  }
+}

@@ -5,7 +5,7 @@ import { ERROR_MESSAGES } from "../../constants/errorMessages";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthService } from "../../interfaces/service/customer/auth.customer.interface";
-import { generateRefreshToken, generateToken } from "../../utils/jwt";
+import { generateRefreshToken, generateToken, getCookieOptions, verifyRefreshToken } from "../../utils/jwt";
 
 interface IServiceError {
   message: string;
@@ -33,20 +33,17 @@ export class CustomerAuthController {
           password
         );
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: accessTokenMaxAge,
-      });
+       res.cookie(
+        "access_token", 
+        token, 
+        getCookieOptions(accessTokenMaxAge)
+      );
 
-      res.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: refreshTokenMaxAge,
-      });
-
+      res.cookie(
+        "refresh_token",
+         refreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
       res.status(HttpStatus.OK).json({
         success: true,
         message: Messages.REGISTER_SUCCESS,
@@ -66,19 +63,17 @@ export class CustomerAuthController {
       const { customer, token, refreshToken } =
         await this._customerAuthService.Login(phoneNumber, password);
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: accessTokenMaxAge,
-      });
+      res.cookie(
+        "access_token", 
+        token, 
+        getCookieOptions(accessTokenMaxAge)
+      );
 
-      res.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: refreshTokenMaxAge,
-      });
+      res.cookie(
+        "refresh_token",
+         refreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -101,16 +96,13 @@ export class CustomerAuthController {
     }
 
     try {
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.REFRESH_SECRET as string
-      ) as { id: string; isAdmin: boolean };
+      const decoded = verifyRefreshToken(refreshToken)
 
       const customer = await this._customerAuthService.findById(decoded.id);
 
-      if (!customer || customer.refreshToken !== refreshToken) {
+      if (!customer ) {
         return res
-          .status(HttpStatus.FORBIDDEN)
+          .status(HttpStatus.UNAUTHORIZED)
           .json({ message: Messages.INVALID_REFRESH_TOCKEN });
       }
 
@@ -122,19 +114,17 @@ export class CustomerAuthController {
         newRefreshToken
       );
 
-      res.cookie("access_token", newAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: accessTokenMaxAge,
-      });
+       res.cookie(
+        "access_token", 
+        newAccessToken, 
+        getCookieOptions(accessTokenMaxAge)
+      );
 
-      res.cookie("refresh_token", newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: refreshTokenMaxAge,
-      });
+      res.cookie(
+        "refresh_token",
+         newRefreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
 
       return res.status(HttpStatus.OK).json({ success: true });
     } catch {

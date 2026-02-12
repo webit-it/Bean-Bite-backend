@@ -16,13 +16,24 @@ const router=express.Router()
 const customerAuthRepo=new CustomerAuthRepository()
 const customerAuthService=new CustomerAuthService(customerAuthRepo)
 const authController=new CustomerAuthController(customerAuthService)
-router.route("/register").post(authController.register);
-router.route("/otp/verify").post(authController.verifyOtp);
-router.route("/otp/resend").post(authController.resendOtp);
+
+// Register & Login
+router.post("/register", authController.register);
+router.post("/login", authController.login);
+
+// OTP
+router.post("/otp/verify", authController.verifyOtp);
+router.post("/otp/resend", authController.resendOtp);
+
+// Forgot / Reset password
 router.post("/check-customer", authController.verifyCustomer);
 router.post("/reset-password", authController.resetPassword);
-router.route("/login").post(authController.login);
 
+// 🔄 Refresh access token
+router.post("/refresh-token", authController.refreshAccessToken);
+
+// 🚪 Logout (clears refresh token + cookies)
+router.post("/logout", authController.logoutUser);
 
 
 const productRepo=new ProductRepository()

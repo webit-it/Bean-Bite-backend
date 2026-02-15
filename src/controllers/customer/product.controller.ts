@@ -78,4 +78,17 @@ export class ProductController {
             });
         }
     };
+    relatedProducts=async (req: Request, res: Response) => {
+        try {
+            const {slug}=req.params
+             const result = await this._productService.getRelatedProducts(slug);
+             console.log(result)
+            res.status(HttpStatus.OK).json({
+                success: true,
+                data:result
+            });
+        } catch (error:unknown) {
+            
+        }
+    }
 }

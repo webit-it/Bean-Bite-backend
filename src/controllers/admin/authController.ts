@@ -3,9 +3,10 @@ import { IAdminAuthService } from "../../interfaces/service/admin/auth.admin.int
 import HttpStatus from "../../constants/httpsStatusCode";
 import { AdminLoginDTO } from "../../types/customer.type";
 import { IAdminAuthController } from "../../interfaces/controller/admin/admin.auth.controller.interface";
+import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
 export class AdminAuthController implements IAdminAuthController {
-  constructor(private _adminAuthService: IAdminAuthService) {}
+  constructor(private _adminAuthService: IAdminAuthService) { }
 
   login = async (req: Request, res: Response) => {
     try {
@@ -18,7 +19,7 @@ export class AdminAuthController implements IAdminAuthController {
         httpOnly: true,
         secure: false,
         sameSite: "strict",
-        maxAge: 60 * 60 * 1000, 
+        maxAge: 60 * 60 * 1000,
       });
 
       res.status(HttpStatus.OK).json({
@@ -37,7 +38,7 @@ export class AdminAuthController implements IAdminAuthController {
 
       res.clearCookie("access_token", {
         httpOnly: true,
-        secure: false, // true in production (HTTPS)
+        secure: false,
         sameSite: "strict",
       });
 
@@ -50,5 +51,15 @@ export class AdminAuthController implements IAdminAuthController {
         message: "Logout failed",
       });
     }
+  };
+  checkAdminAuth = (req: AuthenticatedRequest, res: Response ) => {
+    return res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Admin authenticated",
+      admin: {
+        id: req.user?.id,
+        isAdmin: req.user?.isAdmin,
+      },
+    });
   };
 }

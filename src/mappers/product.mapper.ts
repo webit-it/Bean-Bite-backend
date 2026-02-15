@@ -3,14 +3,16 @@ import { IProductDocument, ProductResponseDto } from "../types/product.type";
 
 export class ProductMapper {
   static toResponse(doc: IProductDocument): ProductResponseDto {
-    const category =
+    const category =doc.category &&
       typeof doc.category === "object" && "slug" in doc.category
         ? {
             id: doc.category._id.toString(),
             slug: doc.category.slug,
           }
         : {
-            id: doc.category.toString(),
+            id: doc.category
+              ? doc.category.toString()
+              : "",
             slug: "",
           };
 
@@ -28,7 +30,13 @@ export class ProductMapper {
       status: doc.status,
     };
   }
+  static toResponseList(
+  products: IProductDocument[]
+): ProductResponseDto[] {
+  return products.map(product => this.toResponse(product));
 }
+}
+
 
 
 export const toProductResponseDtoArray = (

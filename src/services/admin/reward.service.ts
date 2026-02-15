@@ -97,6 +97,7 @@ export class RewardService implements IRewardService {
                 newProductIds = rewardProducts;
             }
 
+
             const updatedReward = await this._rewardRepo.updateRewardByLevel(level, updateData, newProductIds);
             if (!updatedReward) {
                 throw new AppError("Reward not found", HttpStatus.NOT_FOUND);

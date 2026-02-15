@@ -6,7 +6,6 @@ export const Messages = {
     LOGIN_FAILED: "Login Failed.",
     LOGOUT_FAILED: "Logout Failed.",
     LOGOUT_SUCCESS: "Logout successful.",
-    REGISTER_SUCCESS: "Registration successful.",
     TOKEN_EXPIRED: "Authentication token has expired.",
     INVALID_TOKEN: "Invalid authentication token.",
     INVALID_OTP: "Invalid OTP.",
@@ -21,7 +20,7 @@ export const Messages = {
     PRODUCT_AlREADY_EXIST: "Product already exist",
     INVALID_REWARD_LEVEL: "Invalid reward level",
     INVALID_SLOT_COUNT: "Slot count must be between 4 and 6",
-    REWARD_CANNOT_BE_EMPTY: "Reward cannnot be empty",
+    REWARD_CANNOT_BE_EMPTY: "Reward name cannnot be empty",
     REWARD_SLUG_CANNOT_BE_EMPTY: "Slug cannnot be empty",
     SLUG_ALREADY_EXISTS: "Slug already exists",
     REWARD_NAME_ALREADY_EXISTS: "Reward name already exists",
@@ -36,7 +35,7 @@ export const Messages = {
     REWARD_PROGRESS_UPDATED: "Reward progress updated",
     REWARD_NOT_ACTIVE: "Reward is not active",
     REWARD_PROGRESS_NOT_FOUND: "Reward progress not found",
-    REWARD_LEVEL_COMPLETED_NEXT_STARTED:"Reward level completed, next level started",
+    REWARD_LEVEL_COMPLETED_NEXT_STARTED: "Reward level completed, next level started",
     ALL_REWARDS_COMPLETED: "All reward levels completed",
 
     NOTIFICATION_NOT_FOUND: "Notification not found.",
@@ -78,7 +77,14 @@ export const Messages = {
     INVALID_PRODUCT_ID: 'Invalid product id',
     PRODUCT_STATUS_TOGGLED: 'Successfully product status changed',
 
-    //customer
-    INVALID_CUSTOMER_ID: 'invalied customer id',
+    INVALID_CUSTOMER_ID: 'Invalied customer id',
     CUSTOMER_STATUS_TOGGLED: 'Successfully Customer status changed',
+    ENTER_VALIED_NAME: 'Username should not contain numbers',
+    USE_VALIED_FORMATE: 'Please enter valied phone number',
+    REGISTER_SUCCESS: "Registration successful.",
+    REFRESH_TOKEN_MISSING:'Refresh token missing',
+    INVALID_REFRESH_TOCKEN:'Invalied Refresh Token',
+    REFRESH_TOKEN_EXPIRED:'Refresh token expired',
+    ACCESS_TOKEN_EXPIRED:'Access  token expired',
+    OTP_VERIFIED:"OTP verified successfully",
 };

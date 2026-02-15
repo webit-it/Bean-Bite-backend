@@ -1,4 +1,4 @@
-import { CategoryResponseDto, CreateCategoryDTO, UpdateCategoryDTO } from "../../../types/category.type";
+import { CategoryResponseDto, CreateCategoryDTO, PaginatedCategoryResponse, UpdateCategoryDTO } from "../../../types/category.type";
 
 export default interface ICategoryServiceInterface {
 
@@ -19,12 +19,6 @@ export default interface ICategoryServiceInterface {
     page: number,
     limit: number,
     search?: string
-  ): Promise<{
-    data: CategoryResponseDto[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }>;
+  ): Promise<PaginatedCategoryResponse>;
 
 }

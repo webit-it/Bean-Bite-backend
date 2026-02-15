@@ -1,7 +1,9 @@
+import mongoose from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import IProductRepository from "../../interfaces/repository/product.repository.interface";
 import { IProductService } from "../../interfaces/service/customer/customer.product.interface";
+import { ProductMapper } from "../../mappers/product.mapper";
 import AppError from "../../utils/AppError";
 
 export class ProductService implements IProductService {
@@ -20,7 +22,7 @@ export class ProductService implements IProductService {
     );
 
     return {
-      data: result.data,
+      data: result.data.map(ProductMapper.toResponse),
       total: result.total,
       page: result.page,
       limit: result.limit,
@@ -38,10 +40,30 @@ export class ProductService implements IProductService {
           HttpStatus.NOT_FOUND
         );
       }
-      return product;
+      return ProductMapper.toResponse(product);
     } catch (error) {
       console.log("Get category for edit error:", error);
       throw error;
+    }
+  };
+  getRelatedProducts = async (slug: string) => {
+    try {
+
+      const product = await this._productRepository.findBySlug(slug);
+      if (!product) {
+        throw new AppError(Messages.PRODUCT_NOT_FOUND, HttpStatus.NOT_FOUND);
+      }
+      const categoryId = product.category instanceof mongoose.Types.ObjectId
+        ? product.category
+        : product.category._id;
+      const relatedProducts = await this._productRepository.findAllRelated(
+        categoryId,
+        product._id
+      );
+      console.log(relatedProducts)
+      return ProductMapper.toResponseList(relatedProducts);
+    } catch (error: unknown) {
+      throw error
     }
   };
 }

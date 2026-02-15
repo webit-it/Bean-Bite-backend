@@ -39,7 +39,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
 
-        const query = CustomerRewardProgress.findByIdAndUpdate(
+        await CustomerRewardProgress.findByIdAndUpdate(
             progressId,
             {
                 status: "COMPLETED",
@@ -47,16 +47,18 @@ export class RewardProgressRepository
                 redeemedProduct: redeemedProductId,
                 redeemedAt: new Date(),
             },
-            { new: true }
-        ).populate({
-            path: "redeemedProduct",
-            select: "productName image slug",
-        });
+            { session }
+        );
 
-        if (session) {
-            query.session(session);
-        }
-        return query.exec();
+        const updated = await CustomerRewardProgress.findById(progressId)
+            .populate({
+                path: "redeemedProduct",
+                select: "productName image slug",
+            })
+            .session(session ?? null);
+
+        return updated;
+
     }
 
 

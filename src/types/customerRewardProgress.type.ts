@@ -53,3 +53,10 @@ export interface RedeemedProductDto {
   slug: string;
   image: string;
 }
+
+
+export interface VerifyQrProgressDto {
+  updated: CustomerRewardProgressResponseDto | null;
+  completed: CustomerRewardProgressResponseDto | null;
+  next: CustomerRewardProgressResponseDto | null;
+}

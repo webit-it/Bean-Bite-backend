@@ -1,7 +1,7 @@
 import mongoose, { ClientSession } from "mongoose";
 import { ICustomerRewardProgressRepository } from "../interfaces/repository/reward.progress.repository.interface";
 import { CustomerRewardProgress } from "../models/customer.reward.progress.model";
-import { ICustomerRewardProgressDocument } from "../types/customerRewardProgress.type";
+import { ICustomerRewardProgressDocument, ICustomerRewardProgressPopulated } from "../types/customerRewardProgress.type";
 import { BaseRepository } from "./base.reposiory";
 
 export class RewardProgressRepository
@@ -15,7 +15,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
         return CustomerRewardProgress.findOne({
-            customer:customerId,
+            customer: customerId,
             status: "IN_PROGRESS",
         })
             .sort({ level: -1, updatedAt: -1 })
@@ -38,7 +38,8 @@ export class RewardProgressRepository
         redeemedProductId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
-        return CustomerRewardProgress.findByIdAndUpdate(
+
+        await CustomerRewardProgress.findByIdAndUpdate(
             progressId,
             {
                 status: "COMPLETED",
@@ -46,17 +47,31 @@ export class RewardProgressRepository
                 redeemedProduct: redeemedProductId,
                 redeemedAt: new Date(),
             },
-            { new: true }
-        )
+            { session }
+        );
+
+        const updated = await CustomerRewardProgress.findById(progressId)
+            .populate({
+                path: "redeemedProduct",
+                select: "productName image slug",
+            })
             .session(session ?? null);
+
+        return updated;
+
     }
+
+
     async getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument[]> {
         return CustomerRewardProgress.find({
-            customer:customerId,
+            customer: customerId,
             status: "COMPLETED",
+        }).populate({
+            path: "redeemedProduct",
+            select: "productName image slug",
         })
             .sort({ completedAt: -1 })
             .session(session ?? null)
@@ -72,4 +87,16 @@ export class RewardProgressRepository
         );
         return progress;
     }
-}
+    async findByIdWithProduct(
+        progressId: mongoose.Types.ObjectId
+    ) {
+        return CustomerRewardProgress
+            .findById(progressId)
+            .populate({
+                path: "redeemedProduct",
+                select: "productName slug image",
+            })
+            .lean<ICustomerRewardProgressPopulated>()
+            .exec();
+    }
+}   

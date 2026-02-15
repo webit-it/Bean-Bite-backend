@@ -10,7 +10,7 @@ import { ICustomerRewardProgressRepository } from "../../interfaces/repository/r
 import { IRewardRepository } from "../../interfaces/repository/reward.repository.interface";
 import mongoose, { Types } from "mongoose";
 import { IRewardProductPopulated } from "../../types/reward.type";
-import { ICustomerRewardProgressDocument } from "../../types/customerRewardProgress.type";
+import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
 
 export class QRService implements IQrService {
     constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository) { }
@@ -37,11 +37,17 @@ export class QRService implements IQrService {
     verify = async (code: string, customerId: string) => {
         const session = await mongoose.startSession();
         session.startTransaction();
+
+        let updatedProgressId: mongoose.Types.ObjectId | null = null;
+        let completedProgressId: mongoose.Types.ObjectId | null = null;
+        let nextProgressId: mongoose.Types.ObjectId | null = null;
+
+        let message = Messages.QR_VERIFIED;
+
         try {
             const customerObjectId = new mongoose.Types.ObjectId(customerId);
 
             const qr = await this._qrRepo.markAsUsedIfValid(code, session);
-
             if (!qr) {
                 throw new AppError(Messages.INVALID_QR, HttpStatus.BAD_REQUEST);
             }
@@ -49,15 +55,11 @@ export class QRService implements IQrService {
             if (qr.expiresAt && qr.expiresAt < new Date()) {
                 throw new AppError(Messages.QR_EXPIRED, HttpStatus.BAD_REQUEST);
             }
-
             const activeProgress =
                 await this._customerProgress.getLatestActiveProgress(
                     customerObjectId,
                     session
                 );
-            let message = Messages.QR_VERIFIED;
-
-            let responseProgress: ICustomerRewardProgressDocument | null = null;
             if (!activeProgress) {
                 const firstReward = await this._rewardRepo.findByLevel(1, session);
 
@@ -70,7 +72,7 @@ export class QRService implements IQrService {
                     };
                 }
 
-                const newProgress =await this._customerProgress.createProgress(
+                const newProgress = await this._customerProgress.createProgress(
                     {
                         customer: customerObjectId,
                         reward: firstReward._id,
@@ -82,9 +84,11 @@ export class QRService implements IQrService {
                     session
                 );
 
-                responseProgress = newProgress;
+                updatedProgressId = newProgress._id;
                 message = Messages.REWARD_PROGRESS_STARTED;
-            } else {
+            }
+
+            else {
                 if (activeProgress.status !== "IN_PROGRESS") {
                     throw new AppError(
                         Messages.REWARD_NOT_ACTIVE,
@@ -117,7 +121,10 @@ export class QRService implements IQrService {
                             HttpStatus.INTERNAL_SERVER_ERROR
                         );
                     }
-                    const redeemedProduct = this.pickRandomProduct(reward.rewardProducts);
+
+                    const redeemedProduct = this.pickRandomProduct(
+                        reward.rewardProducts
+                    );
 
                     const completedProgress =
                         await this._customerProgress.markAsCompleted(
@@ -126,50 +133,79 @@ export class QRService implements IQrService {
                             session
                         );
 
-                    responseProgress = completedProgress;
+                    completedProgressId = completedProgress!._id;
 
                     const nextLevel = updatedProgress.level + 1;
                     const nextReward =
                         await this._rewardRepo.findByLevel(nextLevel, session);
 
                     if (nextReward) {
-                        await this._customerProgress.createProgress(
-                            {
-                                customer: customerObjectId,
-                                reward: nextReward._id,
-                                level: nextLevel,
-                                slotCount: nextReward.slotCount,
-                                filledSlots: 0,
-                                status: "IN_PROGRESS",
-                            },
-                            session
-                        );
+                        const nextCreatedProgress =
+                            await this._customerProgress.createProgress(
+                                {
+                                    customer: customerObjectId,
+                                    reward: nextReward._id,
+                                    level: nextLevel,
+                                    slotCount: nextReward.slotCount,
+                                    filledSlots: 0,
+                                    status: "IN_PROGRESS",
+                                },
+                                session
+                            );
 
-                        message = Messages.REWARD_LEVEL_COMPLETED_NEXT_STARTED;
+                        nextProgressId = nextCreatedProgress._id;
+                        message =
+                            Messages.REWARD_LEVEL_COMPLETED_NEXT_STARTED;
                     } else {
                         message = Messages.ALL_REWARDS_COMPLETED;
                     }
-                } else {
-                    responseProgress = updatedProgress;
+                }
+
+                else {
+                    updatedProgressId = updatedProgress._id;
                     message = Messages.REWARD_PROGRESS_UPDATED;
                 }
             }
 
-            const currentProgress =
-                await this._customerProgress.getLatestActiveProgress(
-                    customerObjectId,
-                    session
-                );
-
-
             await session.commitTransaction();
+
+            const updatedProgress = updatedProgressId
+                ? await this._customerProgress.findByIdWithProduct(
+                    updatedProgressId
+                )
+                : null;
+
+            const completedProgress = completedProgressId
+                ? await this._customerProgress.findByIdWithProduct(
+                    completedProgressId
+                )
+                : null;
+
+            const nextProgress = nextProgressId
+                ? await this._customerProgress.findByIdWithProduct(
+                    nextProgressId
+                )
+                : null;
 
             return {
                 qrVerified: true,
                 message,
-                progress: responseProgress,
+                progress: {
+                    updated: updatedProgress
+                        ? CustomerRewardProgressMapper.toResponse(
+                            updatedProgress
+                        )
+                        : null,
+                    completed: completedProgress
+                        ? CustomerRewardProgressMapper.toResponse(
+                            completedProgress
+                        )
+                        : null,
+                    next: nextProgress
+                        ? CustomerRewardProgressMapper.toResponse(nextProgress)
+                        : null,
+                },
             };
-
         } catch (error) {
             await session.abortTransaction();
             console.error("Error in verify QR code:", error);
@@ -178,6 +214,7 @@ export class QRService implements IQrService {
             session.endSession();
         }
     };
+
     private pickRandomProduct(
         products: Types.ObjectId[] | IRewardProductPopulated[]
     ): Types.ObjectId {
@@ -188,6 +225,5 @@ export class QRService implements IQrService {
         }
         return product.id;
     }
-
 }
 

@@ -1,12 +1,14 @@
+import mongoose from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface"
-import bcrypt from "bcrypt"
 import { IProfileService } from "../../interfaces/service/customer/profile.customer.interface";
+import { ICustomerRewardProgressRepository } from "../../interfaces/repository/reward.progress.repository.interface";
+import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
 
 
 export class ProfileService implements IProfileService {
-    constructor(private _customerRepo: ICustomerAuthRepo) { }
+    constructor(private _customerRepo: ICustomerAuthRepo, private _customerProgress:ICustomerRewardProgressRepository) { }
     getProfile = async (customerId: string) => {
         try {
             const customer = await this._customerRepo.findById(customerId)
@@ -28,7 +30,7 @@ export class ProfileService implements IProfileService {
 
     //         if (phoneNumber) {
     //             const phoneRegex = /^[6-9]\d{9}$/;
- 
+
     //             if (!phoneRegex.test(phoneNumber)) {
     //                 throw {
     //                     status: HttpStatus.BAD_REQUEST,
@@ -60,4 +62,43 @@ export class ProfileService implements IProfileService {
     //         throw error
     //     }
     // }
+    getReward = async (customerId: string) => {
+        try {
+            const customer = await this._customerRepo.findById(customerId)
+            if (!customer) {
+                throw { status: HttpStatus.NOT_FOUND, message: Messages.CUSTOMER_NOT_FOUND };
+            }
+            const customerObjectId = new mongoose.Types.ObjectId(customerId);
+
+            const activeProgress =
+                await this._customerProgress.getLatestActiveProgress(
+                    customerObjectId
+                );
+
+            const completedProgressList =
+                await this._customerProgress.getCompletedProgress(
+                    customerObjectId
+                );
+
+            return {
+                message:"Customer rewards fetched successfully",
+                data: {
+                    activeReward: activeProgress
+                        ? CustomerRewardProgressMapper.toResponseFromDocument(
+                            activeProgress
+                        )
+                        : null,
+
+                    completedRewards: completedProgressList.length
+                        ? completedProgressList.map((progress) =>
+                            CustomerRewardProgressMapper.toResponse(progress)
+                        )
+                        : [],
+                },
+            };
+        } catch (error) {
+            console.log("Error get reward", error)
+            throw error
+        }
+    }
 }

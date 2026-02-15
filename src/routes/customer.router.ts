@@ -11,6 +11,7 @@ import { verifyToken } from '../middleware/auth.middleware'
 import { CategoryRepository } from '../repositories/category.repository'
 import { CategoryCustomerService } from '../services/customer/category.customer.service'
 import { CategoryCustomerController } from '../controllers/customer/category.controller'
+import { RewardProgressRepository } from '../repositories/reward.progress.repository'
 const router=express.Router()
 
 const customerAuthRepo=new CustomerAuthRepository()
@@ -44,14 +45,14 @@ router.get("/product", productController.getProducts);
 router.get('/product/related/:slug',productController.relatedProducts)
    
 
-
-const profileService=new ProfileService(customerAuthRepo)
+const customerProgressRepo=new RewardProgressRepository()
+const profileService=new ProfileService(customerAuthRepo,customerProgressRepo)
 const profileController=new ProfileController(profileService)
 router
   .route("/profile")
   .get(verifyToken, profileController.getProfile)
 
-  
+router.get('/reward',verifyToken,profileController.getReward)
 
 const categoryRepo=new CategoryRepository()
 const categoryCustomerService=new CategoryCustomerService(categoryRepo)

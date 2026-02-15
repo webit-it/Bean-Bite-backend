@@ -63,7 +63,7 @@ export class RewardProgressRepository
     async getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
-    ): Promise<ICustomerRewardProgressDocument[]> {
+    ): Promise<ICustomerRewardProgressPopulated[]> {
         return CustomerRewardProgress.find({
             customer: customerId,
             status: "COMPLETED",
@@ -73,8 +73,10 @@ export class RewardProgressRepository
         })
             .sort({ completedAt: -1 })
             .session(session ?? null)
-            .lean();
+            .lean<ICustomerRewardProgressPopulated[]>()
     }
+
+
     async createProgress(
         data: Partial<ICustomerRewardProgressDocument>,
         session?: ClientSession

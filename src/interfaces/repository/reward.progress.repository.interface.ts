@@ -22,7 +22,7 @@ export interface ICustomerRewardProgressRepository {
     getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
-    ): Promise<ICustomerRewardProgressDocument[]>
+    ): Promise<ICustomerRewardProgressPopulated[]>
     findByIdWithProduct(
         progressId: mongoose.Types.ObjectId
     ): Promise<ICustomerRewardProgressPopulated  | null>;

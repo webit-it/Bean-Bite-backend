@@ -11,9 +11,10 @@ import { IRewardRepository } from "../../interfaces/repository/reward.repository
 import mongoose, { Types } from "mongoose";
 import { IRewardProductPopulated } from "../../types/reward.type";
 import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
+import { IRewardHIstoryRepo } from "../../interfaces/repository/reward.history.repository.interface";
 
 export class QRService implements IQrService {
-    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository) { }
+    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo) { }
     generate = async () => {
         try {
             const code = randomUUID();
@@ -103,6 +104,20 @@ export class QRService implements IQrService {
                         session
                     );
 
+                await this._rewardHistory.createHistory(
+                    {
+                        customer: updatedProgress!.customer,
+                        reward: updatedProgress!.reward,
+                        level: updatedProgress!.level,
+                        slotCount: updatedProgress!.slotCount,
+                        status: "IN_PROGRESS",
+                        action: "SLOT_FILLED",
+                        redeemedProduct: null,
+                        completedAt: null,
+                    },
+                    session
+                );
+
                 if (!updatedProgress) {
                     throw new AppError(
                         Messages.REWARD_PROGRESS_NOT_FOUND,
@@ -137,6 +152,20 @@ export class QRService implements IQrService {
                         );
 
                     completedProgressId = completedProgress!._id;
+
+                    await this._rewardHistory.createHistory(
+                        {
+                            customer: completedProgress!.customer,
+                            reward: completedProgress!.reward,
+                            level: completedProgress!.level,
+                            slotCount: completedProgress!.slotCount,
+                            status: "COMPLETED",
+                            action: "LEVEL_COMPLETED",
+                            redeemedProduct: redeemedProduct,
+                            completedAt: new Date(),
+                        },
+                        session
+                    );
 
                     const nextLevel = updatedProgress.level + 1;
                     const nextReward =

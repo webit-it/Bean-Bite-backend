@@ -18,7 +18,7 @@ export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocume
 
         return doc;
     };
-    findByIdWithSession = async (
+    findById = async (
         id: string,
         session?: ClientSession
     ) => {

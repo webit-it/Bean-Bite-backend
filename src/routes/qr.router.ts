@@ -6,12 +6,14 @@ import { QRService } from "../services/qr/qr.service";
 import { RewardProgressRepository } from '../repositories/reward.progress.repository';
 import { RewardRepository } from '../repositories/reward.repository';
 import { verifyToken } from '../middleware/auth.middleware';
+import { RewardHistoryRepository } from '../repositories/reward.history.repository';
 
 
 const qrRepository=new QrRepository()
 const customerProgress=new RewardProgressRepository()
 const rewardRepo=new RewardRepository()
-const qrService=new QRService(qrRepository,customerProgress,rewardRepo)
+const rewardHistoryRepo=new RewardHistoryRepository()
+const qrService=new QRService(qrRepository,customerProgress,rewardRepo,rewardHistoryRepo)
 const qrController=new QrController(qrService)
 
 

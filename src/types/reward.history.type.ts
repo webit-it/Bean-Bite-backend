@@ -5,10 +5,11 @@ export interface IRewardHistory {
   reward: Types.ObjectId;
   level: number;
   slotCount: number;
-  status: "COMPLETED" | "REDEEMED" | "EXPIRED";
-  redeemedProduct?: Types.ObjectId;
+  status: "COMPLETED" | "REDEEMED"|"IN_PROGRESS";
+  action: "SLOT_FILLED"| "LEVEL_COMPLETED";
+  redeemedProduct?: Types.ObjectId|null;
   redeemedByAdmin?: Types.ObjectId;
-  completedAt?: Date;
+  completedAt?: Date|null;
   redeemedAt?: Date
   createdAt: Date;
   updatedAt: Date;

@@ -32,8 +32,12 @@ const RewardHistorySchema = new Schema<IRewardHistoryDocument>(
 
     status: {
       type: String,
-      enum: ["COMPLETED", "REDEEMED", "EXPIRED"],
+      enum: ["IN_PROGRESS", "COMPLETED", "REDEEMED"],
       required: true,
+    },
+    action: {
+      type: String,
+      enum: ["SLOT_FILLED", "LEVEL_COMPLETED"]
     },
 
     completedAt: Date,

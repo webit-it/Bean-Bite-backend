@@ -2,8 +2,9 @@ import { ClientSession, UpdateQuery } from "mongoose";
 import { RewardHistory } from "../models/history.model";
 import { IRewardHistory, IRewardHistoryDocument } from "../types/reward.history.type";
 import { BaseRepository } from "./base.reposiory";
+import { IRewardHIstoryRepo } from "../interfaces/repository/reward.history.repository.interface";
 
-export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocument> {
+export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocument> implements IRewardHIstoryRepo {
     constructor() {
         super(RewardHistory)
     }

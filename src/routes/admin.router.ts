@@ -20,6 +20,10 @@ import { SearchRepository } from "../repositories/global.search.repository";
 import { GlobalSearchService } from "../services/admin/globalSearch.service";
 import { GlobalSearchController } from "../controllers/admin/globalSearchController";
 import { verifyToken } from "../middleware/auth.middleware";
+import { RewardHistoryRepository } from "../repositories/reward.history.repository";
+import { AdminRewardHistoryService } from "../services/admin/reward.history.service";
+import { RewardProgressRepository } from "../repositories/reward.progress.repository";
+import { RewardHistoryController } from "../controllers/admin/rewardHistoryController";
 const router = Router();
 
 const categoryRepository = new CategoryRepository()
@@ -89,5 +93,13 @@ const globalSerachService=new GlobalSearchService(globalSearchRepository)
 const globalSearchController=new GlobalSearchController(globalSerachService)
 router.get("/global", globalSearchController.globalSearch);
 
+
+const rewardHistoryRepo=new RewardHistoryRepository()
+const rewardProgressRepo=new RewardProgressRepository()
+const rewardHistoryService=new AdminRewardHistoryService(rewardHistoryRepo,rewardProgressRepo)
+const rewardHistoryController=new RewardHistoryController(rewardHistoryService)
+
+router.get("/reward-history",rewardHistoryController.getRewardHistories)
+router.put("/reward-history/:historyId",rewardHistoryController.toggleRedeem)
 
 export default router;

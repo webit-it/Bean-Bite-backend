@@ -106,6 +106,7 @@ export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocume
 
                     {
                         $project: {
+                            _id: 1,
                             level: 1,
                             slotCount: 1,
                             action: 1,
@@ -113,17 +114,20 @@ export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocume
                             completedAt: 1,
 
                             customer: {
+                                _id: "$customer._id",
                                 fullName: "$customer.fullName",
                                 phoneNumber: "$customer.phoneNumber"
                             },
 
                             reward: {
+                                _id: "$reward._id",
                                 rewardName: "$reward.rewardName",
                                 slug: "$reward.slug",
                                 slotCount: "$reward.slotCount"
                             },
 
                             redeemedProduct: {
+                                _id: "$redeemedProduct._id",
                                 productName: "$redeemedProduct.productName",
                                 slug: "$redeemedProduct.slug",
                                 image: "$redeemedProduct.image"

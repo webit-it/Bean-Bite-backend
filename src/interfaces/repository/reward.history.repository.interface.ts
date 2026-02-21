@@ -11,5 +11,5 @@ export interface IRewardHIstoryRepo {
         action?: "SLOT_FILLED" | "LEVEL_COMPLETED",
         skip?: number,
         limit?: number
-    ): Promise<{data:IRewardHistoryDocument,totalCount:number}>;
+    ): Promise<{data:IRewardHistoryDocument[],totalCount:number}>;
 }

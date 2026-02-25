@@ -45,14 +45,7 @@ export class RewardHistoryMapper {
                     slug: doc.redeemedProduct.slug,
                     image: doc.redeemedProduct.image,
                 }
-                : doc.redeemedProduct
-                    ? {
-                        id: doc.redeemedProduct.toString(),
-                        productName: "",
-                        slug: "",
-                        image: "",
-                    }
-                    : null;
+                : null;
 
         return {
             id: doc._id.toString(),
@@ -62,8 +55,8 @@ export class RewardHistoryMapper {
             action: doc.action,
             status: doc.status,
 
-            completedAt: doc.completedAt?? undefined,
-            redeemedAt: doc.redeemedAt?? undefined,
+            completedAt: doc.completedAt ?? undefined,
+            redeemedAt: doc.redeemedAt ?? undefined,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt,
             customer,

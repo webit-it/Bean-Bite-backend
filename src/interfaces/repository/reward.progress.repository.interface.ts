@@ -25,5 +25,9 @@ export interface ICustomerRewardProgressRepository {
     ): Promise<ICustomerRewardProgressPopulated[]>
     findByIdWithProduct(
         progressId: mongoose.Types.ObjectId
-    ): Promise<ICustomerRewardProgressPopulated  | null>;
+    ): Promise<ICustomerRewardProgressPopulated | null>;
+    countCompleted(
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<number>
 }

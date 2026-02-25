@@ -99,4 +99,13 @@ export class RewardProgressRepository
             .lean<ICustomerRewardProgressPopulated>()
             .exec();
     }
+    async countCompleted(
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<number> {
+        return await CustomerRewardProgress.countDocuments({
+            customer: customerId,
+            status: "COMPLETED",
+        }).session(session ?? null);
+    };
 }   

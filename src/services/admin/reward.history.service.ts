@@ -52,34 +52,16 @@ export class AdminRewardHistoryService implements IAdminRewardHistoryService {
                 },
                 session
             );
-            // await this._customerProgressRepo.updateProgressStatus(
-            //     {
-            //         customer: history.customer,
-            //         reward: history.reward,
-            //         level: history.level,
-            //     },
-            //     {
-            //         status: newStatus,
-            //         redeemedByAdmin:
-            //             newStatus === "REDEEMED" ? adminId : undefined,
-            //         redeemedAt:
-            //             newStatus === "REDEEMED" ? new Date() : undefined,
-            //     },
-            //     session
-            // );
-            //     await this._customerProgressRepo.updateProgressStatus(
-            //     {
-            //         customer: history.customer,
-            //         reward: history.reward,
-            //         level: history.level,
-            //     },
-            //     {
-            //         status: newStatus,
-            //         redeemedAt:
-            //             newStatus === "REDEEMED" ? new Date() : undefined,
-            //     },
-            //     session
-            // );
+            await this._customerProgressRepo.updateProgressStatus(
+                {
+                    customer: new mongoose.Types.ObjectId(history.customer.toString()),
+                    reward: new mongoose.Types.ObjectId(history.reward.toString()),
+                    level: history.level,
+                    status: newStatus,
+                    redeemedAt: newStatus === "REDEEMED" ? new Date() : undefined,
+                },
+                session
+            );
 
             await session.commitTransaction();
 
@@ -88,7 +70,7 @@ export class AdminRewardHistoryService implements IAdminRewardHistoryService {
             };
         } catch (error) {
             await session.abortTransaction();
-            console.log("Error in toggler redeem :",error)
+            console.log("Error in toggler redeem :", error)
             throw error;
         }
     };

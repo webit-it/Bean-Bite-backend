@@ -30,4 +30,14 @@ export interface ICustomerRewardProgressRepository {
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
     ): Promise<number>
+    updateProgressStatus(
+        data: {
+            customer: mongoose.Types.ObjectId;
+            reward: mongoose.Types.ObjectId;
+            level: number;
+            status: string;
+            redeemedAt?: Date;
+        },
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null>
 }

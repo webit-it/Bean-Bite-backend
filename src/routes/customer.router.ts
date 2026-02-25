@@ -11,6 +11,7 @@ import { verifyToken } from '../middleware/auth.middleware'
 import { CategoryRepository } from '../repositories/category.repository'
 import { CategoryCustomerService } from '../services/customer/category.customer.service'
 import { CategoryCustomerController } from '../controllers/customer/category.controller'
+import { RewardProgressRepository } from '../repositories/reward.progress.repository'
 import { NotificationRepository } from '../repositories/notification.repository'
 import { NotificationService } from '../services/customer/notification.customer'
 import { NotificationController } from '../controllers/customer/notification.controller'
@@ -47,14 +48,14 @@ router.get("/product", productController.getProducts);
 router.get('/product/related/:slug',productController.relatedProducts)
    
 
-
-const profileService=new ProfileService(customerAuthRepo)
+const customerProgressRepo=new RewardProgressRepository()
+const profileService=new ProfileService(customerAuthRepo,customerProgressRepo)
 const profileController=new ProfileController(profileService)
 router
   .route("/profile")
   .get(verifyToken, profileController.getProfile)
 
-  
+router.get('/reward',verifyToken,profileController.getReward)
 
 const categoryRepo=new CategoryRepository()
 const categoryCustomerService=new CategoryCustomerService(categoryRepo)
@@ -62,9 +63,10 @@ const categoryCustomerController=new CategoryCustomerController(categoryCustomer
 router.get('/category',categoryCustomerController.getAllCategories)
 
 
-const notificationRepository=new NotificationRepository()
-const notificationService=new NotificationService(notificationRepository)
-const notificationController=new NotificationController(notificationService)
+const notificationRepository = new NotificationRepository()
+const notificationService = new NotificationService(notificationRepository)
+const notificationController = new NotificationController(notificationService)
+
 router.get(
   "/notifications",
   verifyToken,
@@ -82,5 +84,4 @@ router.get(
   verifyToken,
   notificationController.unreadCount.bind(notificationController)
 )
-
 export default router 

@@ -22,8 +22,22 @@ export interface ICustomerRewardProgressRepository {
     getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
-    ): Promise<ICustomerRewardProgressDocument[]>
+    ): Promise<ICustomerRewardProgressPopulated[]>
     findByIdWithProduct(
         progressId: mongoose.Types.ObjectId
-    ): Promise<ICustomerRewardProgressPopulated  | null>;
+    ): Promise<ICustomerRewardProgressPopulated | null>;
+    countCompleted(
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<number>
+    updateProgressStatus(
+        data: {
+            customer: mongoose.Types.ObjectId;
+            reward: mongoose.Types.ObjectId;
+            level: number;
+            status: string;
+            redeemedAt?: Date;
+        },
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null>
 }

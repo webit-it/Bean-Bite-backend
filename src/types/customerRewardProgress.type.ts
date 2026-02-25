@@ -1,4 +1,4 @@
-import { HydratedDocument, Types } from "mongoose";
+import mongoose, { HydratedDocument, Types } from "mongoose";
 export interface ICustomerRewardProgress {
   customer: Types.ObjectId;
   reward: Types.ObjectId;
@@ -41,10 +41,12 @@ type RewardProgressStatus =
 export type ICustomerRewardProgressDocument = HydratedDocument<ICustomerRewardProgress>;
 
 
-export type ICustomerRewardProgressPopulated =
-  Omit<ICustomerRewardProgress, "redeemedProduct"> & {
-    redeemedProduct?: RedeemedProductDto & { _id: Types.ObjectId };
-  };
+export interface ICustomerRewardProgressPopulated
+    extends Omit<ICustomerRewardProgress, "redeemedProduct"> {
+    redeemedProduct?: RedeemedProductDto & {
+        _id: mongoose.Types.ObjectId;
+    };
+}
 
 
 export interface RedeemedProductDto {

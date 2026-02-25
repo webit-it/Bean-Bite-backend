@@ -27,6 +27,25 @@ export class ProfileController {
             });
         }
     }
+    getReward = async (req: AuthenticatedRequest, res: Response) => {
+        const customerId = req.user?.id;
+        if (!customerId) {
+            return res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS});
+        }
+        try {
+            const {message,data} = await this._profileService.getReward(customerId)
+            res.status(HttpStatus.CREATED).json({
+                success:true,message,data,
+            });
+        } catch (error: unknown) {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: error instanceof Error
+                    ? error.message
+                    : ERROR_MESSAGES.SERVER_ERROR,
+            });
+        }
+    }
     // editProfile = async (req: AuthenticatedRequest, res: Response) => {
     //     const customerId = req.user?.id;
     //     const {fullName,phoneNumber}=req.body

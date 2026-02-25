@@ -1,4 +1,4 @@
-import { VerifyQrProgressDto } from "../../../types/customerRewardProgress.type";
+import { CustomerRewardProgressResponseDto, VerifyQrProgressDto } from "../../../types/customerRewardProgress.type";
 import { QrGenerateResponseDto } from "../../../types/qr.type";
 
 export interface IQrService {
@@ -10,7 +10,11 @@ export interface IQrService {
 
 }
 export interface IVerifyQrResponse {
-    qrVerified: boolean;
-    message: string;
-    progress: VerifyQrProgressDto | null;
+  success: boolean;
+  message: string;
+  data: {
+    activeReward: CustomerRewardProgressResponseDto | null;
+    completedReward: CustomerRewardProgressResponseDto | null;
+  };
 }
+

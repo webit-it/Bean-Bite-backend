@@ -35,8 +35,7 @@ export class QrController implements IQrController {
             const result = await this._qrService.verify(code, customerId);
 
             res.status(HttpStatus.CREATED).json({
-                success: true,
-                data: result,
+                ...result
             });
 
         } catch (error: unknown) {

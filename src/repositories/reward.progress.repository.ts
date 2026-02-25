@@ -39,7 +39,7 @@ export class RewardProgressRepository
         session?: ClientSession
     ): Promise<ICustomerRewardProgressDocument | null> {
 
-        await CustomerRewardProgress.findByIdAndUpdate(
+        const query = CustomerRewardProgress.findByIdAndUpdate(
             progressId,
             {
                 status: "COMPLETED",
@@ -47,25 +47,23 @@ export class RewardProgressRepository
                 redeemedProduct: redeemedProductId,
                 redeemedAt: new Date(),
             },
-            { session }
-        );
+            { new: true }
+        ).populate({
+            path: "redeemedProduct",
+            select: "productName image slug",
+        });
 
-        const updated = await CustomerRewardProgress.findById(progressId)
-            .populate({
-                path: "redeemedProduct",
-                select: "productName image slug",
-            })
-            .session(session ?? null);
-
-        return updated;
-
+        if (session) {
+            query.session(session);
+        }
+        return query.exec();
     }
 
 
     async getCompletedProgress(
         customerId: mongoose.Types.ObjectId,
         session?: ClientSession
-    ): Promise<ICustomerRewardProgressDocument[]> {
+    ): Promise<ICustomerRewardProgressPopulated[]> {
         return CustomerRewardProgress.find({
             customer: customerId,
             status: "COMPLETED",
@@ -75,8 +73,10 @@ export class RewardProgressRepository
         })
             .sort({ completedAt: -1 })
             .session(session ?? null)
-            .lean();
+            .lean<ICustomerRewardProgressPopulated[]>()
     }
+
+
     async createProgress(
         data: Partial<ICustomerRewardProgressDocument>,
         session?: ClientSession
@@ -97,6 +97,38 @@ export class RewardProgressRepository
                 select: "productName slug image",
             })
             .lean<ICustomerRewardProgressPopulated>()
+            .exec();
+    }
+    async countCompleted(
+        customerId: mongoose.Types.ObjectId,
+        session?: ClientSession
+    ): Promise<number> {
+        return await CustomerRewardProgress.countDocuments({
+            customer: customerId,
+            status: "COMPLETED",
+        }).session(session ?? null);
+    };
+    async updateProgressStatus(
+        data: {
+            customer: mongoose.Types.ObjectId;
+            reward: mongoose.Types.ObjectId;
+            level: number;
+            status: string;
+            redeemedAt?: Date;
+        },
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null> {
+        const { customer, reward, level, status, redeemedAt } = data;
+
+        return CustomerRewardProgress.findOneAndUpdate(
+            { customer, reward, level },
+            {
+                status,
+                ...(redeemedAt && { redeemedAt }),
+            },
+            { new: true }
+        )
+            .session(session ?? null)
             .exec();
     }
 }   

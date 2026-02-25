@@ -11,6 +11,9 @@ import { verifyToken } from '../middleware/auth.middleware'
 import { CategoryRepository } from '../repositories/category.repository'
 import { CategoryCustomerService } from '../services/customer/category.customer.service'
 import { CategoryCustomerController } from '../controllers/customer/category.controller'
+import { NotificationRepository } from '../repositories/notification.repository'
+import { NotificationService } from '../services/customer/notification.customer'
+import { NotificationController } from '../controllers/customer/notification.controller'
 const router=express.Router()
 
 const customerAuthRepo=new CustomerAuthRepository()
@@ -58,5 +61,26 @@ const categoryCustomerService=new CategoryCustomerService(categoryRepo)
 const categoryCustomerController=new CategoryCustomerController(categoryCustomerService)
 router.get('/category',categoryCustomerController.getAllCategories)
 
+
+const notificationRepository=new NotificationRepository()
+const notificationService=new NotificationService(notificationRepository)
+const notificationController=new NotificationController(notificationService)
+router.get(
+  "/notifications",
+  verifyToken,
+  notificationController.getMyNotifications.bind(notificationController)
+)
+
+router.patch(
+  "/notifications/:id/read",
+  verifyToken,
+  notificationController.markAsRead.bind(notificationController)
+)
+
+router.get(
+  "/notifications/unread-count",
+  verifyToken,
+  notificationController.unreadCount.bind(notificationController)
+)
 
 export default router 

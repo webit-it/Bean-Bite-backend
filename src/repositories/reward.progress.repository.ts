@@ -108,4 +108,27 @@ export class RewardProgressRepository
             status: "COMPLETED",
         }).session(session ?? null);
     };
+    async updateProgressStatus(
+        data: {
+            customer: mongoose.Types.ObjectId;
+            reward: mongoose.Types.ObjectId;
+            level: number;
+            status: string;
+            redeemedAt?: Date;
+        },
+        session?: ClientSession
+    ): Promise<ICustomerRewardProgressDocument | null> {
+        const { customer, reward, level, status, redeemedAt } = data;
+
+        return CustomerRewardProgress.findOneAndUpdate(
+            { customer, reward, level },
+            {
+                status,
+                ...(redeemedAt && { redeemedAt }),
+            },
+            { new: true }
+        )
+            .session(session ?? null)
+            .exec();
+    }
 }   

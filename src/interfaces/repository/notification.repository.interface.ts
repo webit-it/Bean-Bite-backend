@@ -1,5 +1,4 @@
-// interfaces/repository/notification.repository.interface.ts
-import { Types } from "mongoose";
+import { Types, UpdateResult } from "mongoose";
 import {
   CreateNotificationDTO,
   INotification,
@@ -8,16 +7,19 @@ import {
 
 export interface INotificationRepository {
   create(
-    data: CreateNotificationDTO
-  ): Promise<INotificationDocument>;
+    data: Partial<INotificationDocument>
+  ): Promise<INotificationDocument>
 
   findByUserId(
     userId: Types.ObjectId
-  ): Promise<INotification[]>;
+  ): Promise<INotificationDocument[]>;
 
   markAsRead(
     notificationId: Types.ObjectId
-  ): Promise<INotification | null>;
+  ): Promise<INotificationDocument | null>;
+  markAllAsRead(
+    customer: Types.ObjectId
+  ): Promise<UpdateResult>;
 
   getUnreadCount(
     userId: Types.ObjectId

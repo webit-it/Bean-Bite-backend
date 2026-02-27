@@ -64,24 +64,11 @@ router.get('/category',categoryCustomerController.getAllCategories)
 
 
 const notificationRepository = new NotificationRepository()
-const notificationService = new NotificationService(notificationRepository)
+const customerRepo=new CustomerAuthRepository()
+const notificationService = new NotificationService(customerRepo,notificationRepository)
 const notificationController = new NotificationController(notificationService)
 
-router.get(
-  "/notifications",
-  verifyToken,
-  notificationController.getMyNotifications.bind(notificationController)
-)
+router.get("/customer/notification",verifyToken,notificationController.getMyNotifications).put("/customer/notification",verifyToken,notificationController.markAllAsRead)
+router.put("/customer/notification/:id",verifyToken,notificationController.markAsRead)
 
-router.patch(
-  "/notifications/:id/read",
-  verifyToken,
-  notificationController.markAsRead.bind(notificationController)
-)
-
-router.get(
-  "/notifications/unread-count",
-  verifyToken,
-  notificationController.unreadCount.bind(notificationController)
-)
 export default router 

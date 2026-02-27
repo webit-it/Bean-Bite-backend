@@ -12,9 +12,10 @@ import mongoose, { Types } from "mongoose";
 import { IRewardProductPopulated } from "../../types/reward.type";
 import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
 import { IRewardHIstoryRepo } from "../../interfaces/repository/reward.history.repository.interface";
+import { INotificationRepository } from "../../interfaces/repository/notification.repository.interface";
 
 export class QRService implements IQrService {
-    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo) { }
+    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo, private _notificationRepo: INotificationRepository) { }
     generate = async () => {
         try {
             const code = randomUUID();
@@ -113,23 +114,10 @@ export class QRService implements IQrService {
                     session
                 );
 
-                await this._rewardHistory.createHistory(
-                    {
-                        customer: updatedProgress!.customer,
-                        reward: updatedProgress!.reward,
-                        level: updatedProgress!.level,
-                        slotCount: updatedProgress!.slotCount,
-                        status: "IN_PROGRESS",
-                        action: "SLOT_FILLED",
-                        redeemedProduct: null,
-                        completedAt: null,
-                    },
-                    session
-                );
-
                 if (!updatedProgress) {
                     throw new AppError(Messages.REWARD_PROGRESS_NOT_FOUND, HttpStatus.NOT_FOUND);
                 }
+
 
                 await this._rewardHistory.createHistory(
                     {
@@ -161,6 +149,14 @@ export class QRService implements IQrService {
                         redeemedProduct,
                         session
                     );
+
+                    await this._notificationRepo.create({
+                        customer: customerObjectId,
+                        product: redeemedProduct._id,
+                        reward: completedProgress!._id,
+                        message: `Level ${completedProgress!.level} completed successfully. 
+                        Waiting for admin verification.`,
+                    });
 
                     completedProgressId = completedProgress!._id;
 
@@ -194,6 +190,13 @@ export class QRService implements IQrService {
                                 },
                                 session
                             );
+
+                            await this._notificationRepo.create({
+                                customer: customerObjectId,
+                                message: `Level ${nextLevel} started. Keep shopping to unlock your next reward!`,
+                            });
+
+
                             message = Messages.REWARD_LEVEL_COMPLETED_NEXT_STARTED;
                         } catch (err: any) {
                             if (err.code === 11000) {

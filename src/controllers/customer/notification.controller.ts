@@ -1,20 +1,24 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import {INotificationServiceInterface } from "../../interfaces/service/customer/notification.customer.service.interface";
 import { INotificationControllerInterface } from "../../interfaces/controller/customer/customer.notification.controller.interface";
+import { INotificationService } from "../../interfaces/service/customer/notification.customer.service.interface";
+import { Messages } from "../../constants/messages";
+import HttpStatus from "../../constants/httpsStatusCode";
+import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 
-export class NotificationController implements INotificationControllerInterface {
- constructor(private _notificationService: INotificationServiceInterface) { }
+export class NotificationController {
+  constructor(private _notificationService: INotificationService) { }
 
-  async getMyNotifications(req: Request, res: Response) {
+  getMyNotifications = async (req: AuthenticatedRequest, res: Response) => {
     try {
-     const customer = (req as Request & { customer: Types.ObjectId }).customer;
+      const customerId = req.user?.id;
+      if (!customerId) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS });
+      }
 
-      const notifications =
-        await this._notificationService.getUserNotifications(
-          new Types.ObjectId(customer)
-        );
-
+      const notifications = await this._notificationService.getNotification(
+        customerId
+      );
       res.status(200).json({
         success: true,
         data: notifications,
@@ -27,18 +31,15 @@ export class NotificationController implements INotificationControllerInterface 
     }
   }
 
-  async markAsRead(req: Request, res: Response) {
+   markAsRead=async(req: Request, res: Response)=>{
     try {
       const { id } = req.params;
-
-      const notification =
-        await this._notificationService.markAsRead(
-          new Types.ObjectId(id)
-        );
+      await this._notificationService.markAsRead(
+        id
+      );
 
       res.status(200).json({
         success: true,
-        data: notification,
       });
     } catch (err) {
       res.status(500).json({
@@ -47,24 +48,24 @@ export class NotificationController implements INotificationControllerInterface 
       });
     }
   }
-
-  async unreadCount(req: Request, res: Response) {
+   markAllAsRead=async(req: AuthenticatedRequest, res: Response)=> {
     try {
-      const customer = (req as Request & { customer: Types.ObjectId }).customer;
+      const customerId = req.user?.id;
+      if (!customerId) {
+        return res.status(HttpStatus.UNAUTHORIZED).json({ message: Messages.UNAUTHORIZED_ACCESS });
+      }
 
-      const count =
-        await this._notificationService.getUnreadCount(
-          new Types.ObjectId(customer)
-        );
+      await this._notificationService.markAllAsRead(
+        customerId
+      );
 
       res.status(200).json({
         success: true,
-        count,
       });
     } catch (err) {
       res.status(500).json({
         success: false,
-        message: "Failed to get unread count",
+        message: "Failed to update notification",
       });
     }
   }

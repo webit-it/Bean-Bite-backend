@@ -2,23 +2,20 @@ import { Types } from "mongoose";
 import {
   CreateNotificationDTO,
   INotification,
-  INotificationDocument,
+  NotificationResponseDto,
 } from "../../../types/notification.types";
 
-export interface INotificationServiceInterface {
-  createNotification(
-    data: CreateNotificationDTO
-  ): Promise<INotificationDocument>;
-
-  getUserNotifications(
-    customer: Types.ObjectId
-  ): Promise<INotification[]>;
-
+export interface INotificationService {
+  getNotification(
+    customer: string
+  ): Promise<NotificationResponseDto[]>;
   markAsRead(
-    notificationId: Types.ObjectId
-  ): Promise<INotification | null>;
-
-  getUnreadCount(
-    customer: Types.ObjectId
-  ): Promise<number>;
+    notificationId: string
+  ): Promise<void>;
+  markAllAsRead(
+    customerId: string
+  ): Promise<void>;
+  // getUnreadCount(
+  //   customer: Types.ObjectId
+  // ): Promise<number>;
 }

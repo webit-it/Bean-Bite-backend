@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { Messages } from "../../constants/messages";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface"
@@ -8,7 +8,7 @@ import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapp
 
 
 export class ProfileService implements IProfileService {
-    constructor(private _customerRepo: ICustomerAuthRepo, private _customerProgress:ICustomerRewardProgressRepository) { }
+    constructor(private _customerRepo: ICustomerAuthRepo, private _customerProgress: ICustomerRewardProgressRepository) { }
     getProfile = async (customerId: string) => {
         try {
             const customer = await this._customerRepo.findById(customerId)
@@ -81,7 +81,7 @@ export class ProfileService implements IProfileService {
                 );
 
             return {
-                message:"Customer rewards fetched successfully",
+                message: "Customer rewards fetched successfully",
                 data: {
                     activeReward: activeProgress
                         ? CustomerRewardProgressMapper.toResponseFromDocument(
@@ -101,4 +101,5 @@ export class ProfileService implements IProfileService {
             throw error
         }
     }
+    
 }

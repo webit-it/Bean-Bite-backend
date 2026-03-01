@@ -12,12 +12,11 @@ import router from "./routes/customer.router";
 import { multerErrorHandler } from "./middleware/multerErrorHandler";
 import { initSocket } from "./config/socket";
 
-
 const app=express()
 connectDB()
 
 const server=http.createServer(app)
-export const io = initSocket(server);
+initSocket(server);
 app.use(cookieParser());
 app.use(express.urlencoded());
 app.use(express.json());

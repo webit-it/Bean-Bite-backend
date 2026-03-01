@@ -1,10 +1,12 @@
 import { Server } from "socket.io";
 import http from "http";
 
+let io: Server;
+
 export const initSocket = (server: http.Server) => {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL, 
+      origin: process.env.CLIENT_URL,
       credentials: true,
     },
   });
@@ -22,5 +24,12 @@ export const initSocket = (server: http.Server) => {
     });
   });
 
+  return io;
+};
+
+export const getIO = () => {
+  if (!io) {
+    throw new Error("Socket.io not initialized");
+  }
   return io;
 };

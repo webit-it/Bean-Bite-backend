@@ -13,9 +13,12 @@ import { IRewardProductPopulated } from "../../types/reward.type";
 import { CustomerRewardProgressMapper } from "../../mappers/reward.progress.mapper";
 import { IRewardHIstoryRepo } from "../../interfaces/repository/reward.history.repository.interface";
 import { INotificationRepository } from "../../interfaces/repository/notification.repository.interface";
+import { getIO } from "../../config/socket";
+import IProductRepository from "../../interfaces/repository/product.repository.interface";
+
 
 export class QRService implements IQrService {
-    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo, private _notificationRepo: INotificationRepository) { }
+    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo, private _notificationRepo: INotificationRepository,private _productRepo:IProductRepository) { }
     generate = async () => {
         try {
             const code = randomUUID();
@@ -143,6 +146,7 @@ export class QRService implements IQrService {
                     }
 
                     const redeemedProduct = this.pickRandomProduct(reward.rewardProducts);
+                    const redeemedProductDetails=await this._productRepo.findById(redeemedProduct.toString())
 
                     const completedProgress = await this._customerProgress.markAsCompleted(
                         updatedProgress._id,
@@ -156,6 +160,13 @@ export class QRService implements IQrService {
                         reward: completedProgress!._id,
                         message: `Level ${completedProgress!.level} completed successfully. 
                         Waiting for admin verification.`,
+                    });
+
+                    const io = getIO();
+                    io.to(customerId).emit("new-notification", {
+                        message: `Level ${completedProgress!.level} completed successfully.`,
+                        level: completedProgress!.level,
+                        product: redeemedProductDetails?.productName,
                     });
 
                     completedProgressId = completedProgress!._id;
@@ -194,6 +205,10 @@ export class QRService implements IQrService {
                             await this._notificationRepo.create({
                                 customer: customerObjectId,
                                 message: `Level ${nextLevel} started. Keep shopping to unlock your next reward!`,
+                            });
+                            io.to(customerId).emit("new-notification", {
+                                message: `Level ${nextLevel} started. Keep shopping!`,
+                                level: nextLevel,
                             });
 
 

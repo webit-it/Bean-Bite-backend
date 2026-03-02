@@ -112,6 +112,9 @@ export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocume
                             action: 1,
                             status: 1,
                             completedAt: 1,
+                            redeemedAt: 1,
+                            createdAt: 1,
+                            updatedAt: 1,
 
                             customer: {
                                 _id: "$customer._id",

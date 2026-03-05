@@ -18,7 +18,8 @@ export default interface ICategoryServiceInterface {
   getAllCategories(
     page: number,
     limit: number,
-    search?: string
+    search?: string,
+    status?:boolean
   ): Promise<PaginatedCategoryResponse>;
 
 }

@@ -138,10 +138,11 @@ updateCategory = async (  id: string,  data: UpdateCategoryDTO) => {
  getAllCategories = async (
   page: number,
   limit: number,
-  search?: string
+  search?: string,
+  status?:boolean
 ) => {
 
-  const result =await this._categoryRepository.findAllPaginated(page, limit, search);
+  const result =await this._categoryRepository.findAllPaginated(page, limit, search,status);
 
   return {
     data: result.data.map(CategoryMapper.toResponse), 

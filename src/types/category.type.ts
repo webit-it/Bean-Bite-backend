@@ -8,6 +8,7 @@ export type CategorySearchQuery = {
     slug?: { $regex: string; $options: string };
     description?: { $regex: string; $options: string };
   }>;
+  status?:boolean
 };
 
 /* ---------------- ENTITY (SERVICE LEVEL) ---------------- */

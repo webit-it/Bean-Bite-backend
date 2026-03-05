@@ -23,7 +23,8 @@ export default interface ICategoryRepository {
   findAllPaginated(
     page: number,
     limit: number,
-    search?: string
+    search?: string,
+    status?:boolean
   ): Promise<PaginatedCategories<ICategoryDocument>>;
 
 }

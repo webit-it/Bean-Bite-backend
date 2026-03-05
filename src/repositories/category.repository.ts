@@ -21,7 +21,7 @@ async  findByName(categoryName: string) {
     $or: [{ slug }, { categoryName }],
   });
 }
-  async findAllPaginated(page: number, limit: number, search?: string) {
+  async findAllPaginated(page: number, limit: number, search?: string ,status?:boolean) {
     const skip = (page - 1) * limit;
     const query: CategorySearchQuery = {};
 
@@ -31,6 +31,9 @@ async  findByName(categoryName: string) {
         { slug: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } }
       ];
+    }
+    if (status !== undefined) {
+     query.status = status;
     }
 
     const [data, total] = await Promise.all([

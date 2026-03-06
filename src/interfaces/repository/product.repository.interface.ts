@@ -14,13 +14,14 @@ export default interface IProductRepository {
 
   findAll(): Promise<IProductDocument[]>;
   findById(id: string): Promise<IProduct | null>;
-  findAllPaginated(
-    page: number,
-    limit: number,
-    search?: string,
-    category?: string,
-    exclude?: string[]
-  ): Promise<PaginatedProducts<IProductDocument>>;
+findAllPaginated(
+  page: number,
+  limit: number,
+  search?: string,
+  category?: string,
+  exclude?: string[],
+  status?: boolean
+): Promise<PaginatedProducts<IProductDocument>>;
 
 findAllRelated(
   categoryId: Types.ObjectId,

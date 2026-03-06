@@ -8,7 +8,8 @@ export default interface IProductServiceInteface {
   getAllProducts(
     page: number,
     limit: number,
-    search?: string
+    search?: string,
+    status?:boolean
   ): Promise<{
     data: ProductResponseDto[];
     total: number;

@@ -8,10 +8,11 @@ export type ProductSearchQuery = {
     description?: { $regex: string; $options: string };
   }>;
   category?: mongoose.Types.ObjectId;
+  status?: boolean;
   _id?: {
     $nin: mongoose.Types.ObjectId[];
   };
-};
+};;
 
 export interface IProduct {
   productName: string;

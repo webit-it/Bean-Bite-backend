@@ -2,6 +2,7 @@ import { Document } from "mongoose";
 
 export type CustomerSearchQuery = {
   isAdmin?: boolean;
+  isActive?: boolean;
   $or?: Array<{
     fullName?: { $regex: string; $options: string };
     phoneNumber?: { $regex: string; $options: string };
@@ -17,11 +18,7 @@ export interface ICustomer {
   password: string;
   isActive: boolean;
   isAdmin: boolean;
-
-  /** 🔐 Auth */
   refreshToken?: string | null;
-
-  /** 🔢 OTP */
   otp?: string | null;
   otpExpires?: Date | null;
 

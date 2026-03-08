@@ -21,7 +21,8 @@ export interface ICustomerAuthRepo {
   findAllPaginated(
     page: number,
     limit: number,
-    search?: string
+    search?: string,
+    isActive?:boolean
   ): Promise<{
     data: ICustomerDocument[];
     total: number;

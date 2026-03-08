@@ -35,35 +35,45 @@ async updateRefreshToken(
     refreshToken,
   });
 }
-  async findAllPaginated(page: number, limit: number, search?: string) {
-    const skip = (page - 1) * limit;
+async findAllPaginated(
+  page: number,
+  limit: number,
+  search?: string,
+  isActive?: boolean
+) {
 
-    const query: CustomerSearchQuery = {
-      isAdmin: false,
-    };
+  const skip = (page - 1) * limit;
 
-    if (search) {
-      query.$or = [
-        { fullName: { $regex: search, $options: "i" } },
-        { phoneNumber: { $regex: search, $options: "i" } },
-      ];
-    }
+  const query: CustomerSearchQuery = {
+    isAdmin: false,
+  };
 
-    const [data, total] = await Promise.all([
-      this.model
-        .find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      this.model.countDocuments(query),
-    ]);
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-    };
+  if (isActive !== undefined) {
+    query.isActive = isActive;
   }
+
+  if (search) {
+    query.$or = [
+      { fullName: { $regex: search, $options: "i" } },
+      { phoneNumber: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const [data, total] = await Promise.all([
+    this.model
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    this.model.countDocuments(query),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
+}
 }

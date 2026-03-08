@@ -10,16 +10,28 @@ import AppError from "../../utils/AppError";
 export class CustomerService implements ICustomerServiceInterface {
   constructor(private _customerRepository: ICustomerAuthRepo) { }
 
-  getAllCustomers = async (page: number, limit: number, search?: string) => {
-    const result = await this._customerRepository.findAllPaginated(page, limit, search);
-    return {
-      data: result.data.map(CustomerMapper.toResponse),
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: Math.ceil(result.total / result.limit)
-    };
+getAllCustomers = async (
+  page: number,
+  limit: number,
+  search?: string,
+  isActive?: boolean
+) => {
+
+  const result = await this._customerRepository.findAllPaginated(
+    page,
+    limit,
+    search,
+    isActive
+  );
+
+  return {
+    data: result.data.map(CustomerMapper.toResponse),
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: Math.ceil(result.total / result.limit),
   };
+};
   toggleCustomerStatus = async (id: string) => {
     try {
       if (!Types.ObjectId.isValid(id)) {

@@ -23,7 +23,7 @@ export class NotificationRepository
     return this.model
       .find({ customer, isRead: false })
       .sort({ createdAt: -1 })
-      .populate("product", "productName price");
+      .populate("product", "productName price image");
   }
 
   async markAsRead(notificationId: Types.ObjectId) {

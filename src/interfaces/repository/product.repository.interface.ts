@@ -27,4 +27,6 @@ findAllRelated(
   categoryId: Types.ObjectId,
   excludeProductId: Types.ObjectId
 ): Promise<IProductDocument[]>
+
+count(filter?: any): Promise<number>;
 }

@@ -23,4 +23,7 @@ export class BaseRepository<T extends Document> {
   delete(id: string | Types.ObjectId) {
     return this.model.findByIdAndDelete(id).exec();
   }
+count(filter: Record<string, any> = {}) {
+    return this.model.countDocuments(filter).exec();
+  }
 }

@@ -45,4 +45,28 @@ export class NotificationRepository
       isRead: false,
     });
   }
+    async findAllPaginated(page: number, limit: number) {
+  const skip = (page - 1) * limit;
+
+  const query = {}; 
+
+  const [data, total] = await Promise.all([
+    this.model
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("product", "productName price")
+      .populate("customer", "name email")
+      .lean(),
+    this.model.countDocuments(query),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
+}
 }

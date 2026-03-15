@@ -3,6 +3,7 @@ import {
   CreateNotificationDTO,
   INotification,
   INotificationDocument,
+  PaginatedNotification,
 } from "../../types/notification.types";
 
 export interface INotificationRepository {
@@ -24,4 +25,9 @@ export interface INotificationRepository {
   getUnreadCount(
     userId: Types.ObjectId
   ): Promise<number>;
+
+   findAllPaginated(
+      page: number,
+      limit: number,
+    ): Promise<PaginatedNotification<INotificationDocument>>;
 }

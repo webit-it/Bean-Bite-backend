@@ -24,6 +24,9 @@ import { RewardHistoryRepository } from "../repositories/reward.history.reposito
 import { AdminRewardHistoryService } from "../services/admin/reward.history.service";
 import { RewardProgressRepository } from "../repositories/reward.progress.repository";
 import { RewardHistoryController } from "../controllers/admin/rewardHistoryController";
+import { DashboardService } from "../services/admin/dashboard.service";
+import { AdminDashboardController } from "../controllers/admin/dashboardController";
+import { NotificationRepository } from "../repositories/notification.repository";
 const router = Router();
 
 const categoryRepository = new CategoryRepository()
@@ -102,4 +105,15 @@ const rewardHistoryController=new RewardHistoryController(rewardHistoryService)
 router.get("/reward-history",rewardHistoryController.getRewardHistories)
 router.put("/reward-history/:historyId",rewardHistoryController.toggleRedeem)
 
+const notificationRepository = new NotificationRepository()
+const dashboardService = new DashboardService(
+  productRepository,
+  customerRepository,
+  rewardHistoryRepo,
+  notificationRepository
+);
+const adminDashboardController=new AdminDashboardController(dashboardService)
+  router.get("/dashboard/counts", adminDashboardController.getDashboardCounts);
+  router.get("/dashboard/notifications", adminDashboardController.getNotifications);
+  
 export default router;

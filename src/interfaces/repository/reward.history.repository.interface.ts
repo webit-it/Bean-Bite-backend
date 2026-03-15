@@ -12,4 +12,7 @@ export interface IRewardHIstoryRepo {
         skip?: number,
         limit?: number
     ): Promise<{data:IRewardHistoryDocument[],totalCount:number}>;
+
+    count(filter?: any): Promise<number>;
+
 }

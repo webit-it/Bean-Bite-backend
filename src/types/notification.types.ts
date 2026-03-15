@@ -33,3 +33,18 @@ export interface NotificationResponseDto {
     level?: number;
   } | null;
 }
+
+export interface PaginatedNotificationResponse {
+  data: NotificationResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedNotification<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}

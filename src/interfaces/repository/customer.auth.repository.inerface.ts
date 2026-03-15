@@ -29,4 +29,6 @@ export interface ICustomerAuthRepo {
     page: number;
     limit: number;
   }>;
+  count(filter?: any): Promise<number>;
+
 }

@@ -56,7 +56,7 @@ export class NotificationRepository
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("product", "productName price")
+      .populate("product", "productName price image")
       .populate("customer", "name email")
       .lean(),
     this.model.countDocuments(query),

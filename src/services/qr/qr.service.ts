@@ -158,8 +158,7 @@ export class QRService implements IQrService {
                         customer: customerObjectId,
                         product: redeemedProduct._id,
                         reward: completedProgress!._id,
-                        message: `Level ${completedProgress!.level} completed successfully. 
-                        Waiting for admin verification.`,
+                        message: `Level ${completedProgress!.level} completed successfully.Waiting for admin verification.`,
                     });
 
                     const io = getIO();

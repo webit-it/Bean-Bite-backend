@@ -17,6 +17,7 @@ export class NotificationMapper {
         id: productDoc._id.toString(),
         productName: productDoc.productName,
         price: productDoc.price,
+        image:productDoc.image
       };
     } else if (doc.product) {
       product = {

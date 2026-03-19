@@ -105,15 +105,14 @@ const rewardHistoryController=new RewardHistoryController(rewardHistoryService)
 router.get("/reward-history",rewardHistoryController.getRewardHistories)
 router.put("/reward-history/:historyId",rewardHistoryController.toggleRedeem)
 
-const notificationRepository = new NotificationRepository()
 const dashboardService = new DashboardService(
   productRepository,
   customerRepository,
   rewardHistoryRepo,
-  notificationRepository
+  
 );
 const adminDashboardController=new AdminDashboardController(dashboardService)
   router.get("/dashboard/counts", adminDashboardController.getDashboardCounts);
-  router.get("/dashboard/notifications", adminDashboardController.getNotifications);
+  router.get("/dashboard/recentReward", adminDashboardController.getRecentReward);
   
 export default router;

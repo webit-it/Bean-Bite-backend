@@ -1,4 +1,4 @@
-import {  PaginatedNotificationResponse } from "../../../types/notification.types";
+import { PaginatedHistory, PaginatedRewardHistoryResponse } from "../../../types/reward.history.type";
 
 
 export default interface IDashboardServiceInterface {
@@ -8,11 +8,11 @@ export default interface IDashboardServiceInterface {
         products: number;
         rewards: number;
     }>;
-    getNotifications(
+    getRecentReward(
         page: number,
         limit: number,
         search?: string,
         status?:boolean
-      ): Promise<PaginatedNotificationResponse>;
+      ): Promise<PaginatedRewardHistoryResponse>;
     
 }

@@ -151,4 +151,41 @@ export class RewardHistoryRepository extends BaseRepository<IRewardHistoryDocume
             totalCount: result[0].totalCount[0]?.count || 0
         };
     }
+
+async findAllPaginated(page: number, limit: number) {
+  const skip = (page - 1) * limit;
+
+  const query = {}; 
+
+ const [data, total] = await Promise.all([
+  this.model
+    .find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: "customer",
+      select: "fullName phoneNumber",
+      options: { strictPopulate: false }
+    })
+    .populate({
+      path: "reward",
+      select: "rewardName slug slotCount",
+      options: { strictPopulate: false }
+    })
+    .populate({
+      path: "redeemedProduct",
+      select: "productName slug image",
+      options: { strictPopulate: false }
+    })
+    .lean(),
+  this.model.countDocuments(query),
+]);
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
+}
 }

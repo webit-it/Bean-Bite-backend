@@ -22,13 +22,13 @@ export class AdminDashboardController implements IAdminDashboardController {
     });
   }
 };
-getNotifications = async (req: Request, res: Response) => {
+getRecentReward = async (req: Request, res: Response) => {
    try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 6;
      
 
-      const result =await this._dashboardService.getNotifications(page, limit);
+      const result =await this._dashboardService.getRecentReward(page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,

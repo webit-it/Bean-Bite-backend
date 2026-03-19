@@ -3,14 +3,13 @@ import IProductRepository from "../../interfaces/repository/product.repository.i
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 import { IRewardHIstoryRepo } from "../../interfaces/repository/reward.history.repository.interface";
 import { INotificationRepository } from "../../interfaces/repository/notification.repository.interface";
-import { NotificationMapper } from "../../mappers/notification.mapper";
+import { RewardHistoryMapper } from "../../mappers/reward.history.mapper";
 
 export class DashboardService implements IDashboardServiceInterface {
   constructor(
     private _productRepository: IProductRepository,
     private _customerRepository: ICustomerAuthRepo,
     private _rewardHistoryRepository: IRewardHIstoryRepo,
-    private _notificationRepository:INotificationRepository
   ) {}
   async getDashboardCounts() {
   const [products, users, rewards] = await Promise.all([
@@ -25,23 +24,17 @@ export class DashboardService implements IDashboardServiceInterface {
     rewards
   };
 }
-async getNotifications( 
-   page: number,
-  limit: number,
 
-){
+async getRecentReward(page: number,limit: number,){
 
-
-  const result =await this._notificationRepository.findAllPaginated(page, limit);
-
+  const result =await this._rewardHistoryRepository.findAllPaginated(page, limit);
   return {
-    data: result.data.map(NotificationMapper.toResponse), 
+    data: result.data.map(RewardHistoryMapper.toResponse), 
     total: result.total,
     page: result.page,
     limit: result.limit,
     totalPages: Math.ceil(result.total / result.limit),
   };
-
 }
 }
 

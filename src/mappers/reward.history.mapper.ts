@@ -1,24 +1,26 @@
+import mongoose from "mongoose";
 import { IRewardHistoryDocument, RewardHistoryResponseDto } from "../types/reward.history.type";
+import { ICustomerDocument } from "../types/customer.type";
 
 export class RewardHistoryMapper {
 
-    static toResponse(
-        doc: IRewardHistoryDocument
-    ): RewardHistoryResponseDto {
-        const customer =
-            doc.customer &&
-                typeof doc.customer === "object" &&
-                "fullName" in doc.customer
-                ? {
-                    id: doc.customer._id.toString(),
-                    fullName: doc.customer.fullName,
-                    phoneNumber: doc.customer.phoneNumber,
-                }
-                : {
-                    id: doc.customer ? doc.customer.toString() : "",
-                    fullName: "",
-                    phoneNumber: "",
-                };
+    static toResponse(doc: IRewardHistoryDocument): RewardHistoryResponseDto {
+        let customer: any = null;
+
+        if (doc.customer && typeof doc.customer === "object" && "fullName" in doc.customer) {
+            const customerDoc = doc.customer as ICustomerDocument;
+
+            customer = {
+                id: customerDoc._id.toString(),
+                fullName: customerDoc.fullName,
+                phoneNumber: customerDoc.phoneNumber
+            };
+        } else if (doc.customer) {
+            customer = {
+                id: doc.customer.toString(),
+            };
+        }
+
         const reward =
             doc.reward &&
                 typeof doc.reward === "object" &&

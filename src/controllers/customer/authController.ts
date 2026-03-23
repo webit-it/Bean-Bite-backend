@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import { ERROR_MESSAGES } from "../../constants/errorMessages";
 import { Messages } from "../../constants/messages";
 import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthService } from "../../interfaces/service/customer/auth.customer.interface";
+import { generateRefreshToken, generateToken, getCookieOptions, verifyRefreshToken } from "../../utils/jwt";
 
 interface IServiceError {
   message: string;
@@ -12,137 +14,215 @@ interface IServiceError {
 
 dotenv.config();
 
-const accessTokenMaxAge = Number(process.env.ACCESS_TOKEN_MAX_AGE) || 6 * 60 * 60 * 1000;
-const refreshTokenMaxAge = Number(process.env.REFRESH_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
+const accessTokenMaxAge =
+  Number(process.env.ACCESS_TOKEN_MAX_AGE) || 7 * 24 * 60 * 60 * 1000;
+
+const refreshTokenMaxAge =
+  Number(process.env.REFRESH_TOKEN_MAX_AGE) || 30 * 24 * 60 * 60 * 1000;
 
 export class CustomerAuthController {
   constructor(private _customerAuthService: ICustomerAuthService) { }
+
   register = async (req: Request, res: Response) => {
     const { userName, phoneNumber, password } = req.body;
     try {
-      const { customer, token, refreshToken } = await this._customerAuthService.register(
-        userName,
-        phoneNumber,
-        password,
+      const { customer, token, refreshToken } =
+        await this._customerAuthService.register(
+          userName,
+          phoneNumber,
+          password
+        );
+
+       res.cookie(
+        "access_token", 
+        token, 
+        getCookieOptions(accessTokenMaxAge)
       );
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: accessTokenMaxAge,
+      res.cookie(
+        "refresh_token",
+         refreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.REGISTER_SUCCESS,
+        customer,
       });
-
-      res.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: refreshTokenMaxAge,
-      });
-
-      res.status(HttpStatus.OK).json(customer);
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
-      const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
-      const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;
-
-      res.status(status).json({ message });
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
     }
   };
 
   login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
+    const { phoneNumber, password } = req.body;
     try {
-      const { user, token, refreshToken } = await this._customerAuthService.Login(email, password);
+      const { customer, token, refreshToken } =
+        await this._customerAuthService.Login(phoneNumber, password);
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: accessTokenMaxAge,
-      });
+      res.cookie(
+        "access_token", 
+        token, 
+        getCookieOptions(accessTokenMaxAge)
+      );
 
-      res.cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: refreshTokenMaxAge,
-      });
+      res.cookie(
+        "refresh_token",
+         refreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
 
-      res.status(HttpStatus.OK).json(user);
-    } catch (error: unknown) {
-      const serviceError = error as IServiceError;
-      const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
-      const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;
-
-      res.status(status).json({ message });
-    }
-  };
-
-  verifyOtp = async (req: Request, res: Response) => {
-    const { email, otp } = req.body;
-    try {
-      const { customer, message } = await this._customerAuthService.verifyOtp(email, otp);
       res.status(HttpStatus.OK).json({
-        message,
-        user: {
-          _id: customer._id,
-          phoneNumber: customer.phoneNumber,
-          userName: customer.fullName,
-          isAdmin: customer.isAdmin,
-        },
+        success: true,
+        customer,
       });
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
-      const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
-      const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;
-
-      res.status(status).json({ message });
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
     }
   };
+  refreshAccessToken = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refresh_token;
 
-  resendOtp = async (req: Request, res: Response) => {
-    const { email } = req.body;
-    try {
-      const message = await this._customerAuthService.resendOtp(email);
-      res.status(HttpStatus.OK).json({ message });
-    } catch (error: unknown) {
-      const serviceError = error as IServiceError;
-      const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
-      const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;
-
-      res.status(status).json({ message });
+    if (!refreshToken) {
+      return res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ message:Messages.REFRESH_TOKEN_MISSING});
     }
-  }
-  logoutUser = async (req: Request, res: Response) => {
-    const { id } = req.params;
+
     try {
-      if (!id) {
-        res.status(HttpStatus.BAD_REQUEST).json({ message: "User ID is required" });
-        return;
+      const decoded = verifyRefreshToken(refreshToken)
+
+      const customer = await this._customerAuthService.findById(decoded.id);
+
+      if (!customer ) {
+        return res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ message: Messages.INVALID_REFRESH_TOCKEN });
+      }
+
+      const newAccessToken = generateToken(decoded.id, decoded.isAdmin);
+      const newRefreshToken = generateRefreshToken(decoded.id, decoded.isAdmin);
+
+      await this._customerAuthService.updateRefreshToken(
+        decoded.id,
+        newRefreshToken
+      );
+
+       res.cookie(
+        "access_token", 
+        newAccessToken, 
+        getCookieOptions(accessTokenMaxAge)
+      );
+
+      res.cookie(
+        "refresh_token",
+         newRefreshToken,
+         getCookieOptions(refreshTokenMaxAge)
+   );
+
+      return res.status(HttpStatus.OK).json({ success: true });
+    } catch {
+      return res
+        .status(HttpStatus.FORBIDDEN)
+        .json({ message:Messages.REFRESH_TOKEN_EXPIRED});
+    }
+  };
+  logoutUser = async (req: Request, res: Response) => {
+    try {
+      const refreshToken = req.cookies.refresh_token;
+
+      if (refreshToken) {
+        await this._customerAuthService.clearRefreshToken(refreshToken);
       }
 
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
 
-      res.status(HttpStatus.OK).json({ message: Messages.LOGOUT_SUCCESS });
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : Messages.LOGOUT_FAILED;
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: Messages.LOGOUT_SUCCESS,
+      });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: Messages.LOGOUT_FAILED });
     }
   };
 
-  forgetPassword = async (req: Request, res: Response) => {
-    const { email } = req.body;
+  // ================= OTP =================
+  verifyOtp = async (req: Request, res: Response) => {
+    const { phoneNumber, otp } = req.body;
     try {
-      const customer = await this._customerAuthService.forgotPassword(email);
-      res.status(HttpStatus.OK).json({ success: true, message: "Successfully Completed", customer });
+      const { token, message } =
+        await this._customerAuthService.verifyOtp(phoneNumber, otp);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        token,
+        message,
+      });
     } catch (error: unknown) {
       const serviceError = error as IServiceError;
-      const message = serviceError.message || ERROR_MESSAGES.SERVER_ERROR;
-      const status = serviceError.status || HttpStatus.INTERNAL_SERVER_ERROR;
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
 
-      res.status(status).json({ message });
+  resendOtp = async (req: Request, res: Response) => {
+    const { phoneNumber } = req.body;
+    try {
+      const message =
+        await this._customerAuthService.resendOtp(phoneNumber);
+      res.status(HttpStatus.OK).json({ success: true, message });
+    } catch (error: unknown) {
+      const serviceError = error as IServiceError;
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
+
+  // ================= FORGOT / RESET =================
+  verifyCustomer = async (req: Request, res: Response) => {
+    const { phoneNumber } = req.body;
+    try {
+      const customer =
+        await this._customerAuthService.verifyCustomer(phoneNumber);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Successfully Completed",
+        customer,
+      });
+    } catch (error: unknown) {
+      const serviceError = error as IServiceError;
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
+    }
+  };
+
+  resetPassword = async (req: Request, res: Response) => {
+    const { token, password } = req.body;
+    try {
+      const customer =
+        await this._customerAuthService.resetPassword(token, password);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Successfully Completed",
+        customer,
+      });
+    } catch (error: unknown) {
+      const serviceError = error as IServiceError;
+      res.status(serviceError.status || 500).json({
+        message: serviceError.message || ERROR_MESSAGES.SERVER_ERROR,
+      });
     }
   };
 }

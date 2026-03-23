@@ -22,6 +22,10 @@ const customerSchema = new Schema<ICustomerDocument>(
       type: String,
       default: null,
     },
+    isActive:{
+      type:Boolean,
+      default:true
+    },
     isAdmin: {
       type: Boolean,
       default: false,

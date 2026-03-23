@@ -1,22 +1,30 @@
 import { Types, UpdateQuery } from "mongoose";
-import { ICategory, ICategoryDocument, PaginatedCategories } from "../../types/category.type";
-
+import {ICategoryDocument,PaginatedCategories} from "../../types/category.type";
 
 export default interface ICategoryRepository {
-    findBySlug(slug: string): Promise<ICategory | null>;
-    findByName(categoryName: string): Promise<ICategory | null>;
-    create(data: Partial<ICategory>): Promise<ICategory>;
-    update(
-        id: string | Types.ObjectId,
-        data: UpdateQuery<ICategory>
-    ): Promise<ICategory | null>;
 
-    findAll(): Promise<ICategoryDocument[]>;
-    findById(id: string): Promise<ICategory | null>;
-    findAllPaginated(
-        page: number,
-        limit: number,
-        search?: string
-    ): Promise<PaginatedCategories>;
+  findBySlug(slug: string): Promise<ICategoryDocument | null>;
+
+  findByName(categoryName: string): Promise<ICategoryDocument | null>;
+
+  findBySlugOrName(slug: string, categoryName: string): Promise<ICategoryDocument | null>;
+
+  create(data: Partial<ICategoryDocument>): Promise<ICategoryDocument>;
+
+  update(
+    id: string | Types.ObjectId,
+    data: UpdateQuery<ICategoryDocument>
+  ): Promise<ICategoryDocument | null>;
+
+  findById(id: string): Promise<ICategoryDocument | null>;
+
+  findAll(): Promise<ICategoryDocument[]>;
+
+  findAllPaginated(
+    page: number,
+    limit: number,
+    search?: string,
+    status?:boolean
+  ): Promise<PaginatedCategories<ICategoryDocument>>;
 
 }

@@ -1,43 +1,118 @@
+import mongoose, { Types } from "mongoose";
 import IProductRepository from "../interfaces/repository/product.repository.interface";
 import ProductModel from "../models/product.model";
-import { IProductDocument } from "../types/product.type";
+import { IProductDocument, PaginatedProducts, ProductSearchQuery } from "../types/product.type";
 import { BaseRepository } from "./base.reposiory";
+import { UpdateQuery } from "mongoose";
 
+export class ProductRepository
+  extends BaseRepository<IProductDocument>
+  implements IProductRepository {
 
-export class ProductRepository extends BaseRepository<IProductDocument> implements IProductRepository {
   constructor() {
     super(ProductModel);
   }
 
-  findBySlug(slug: string) {
-    return this.model.findOne({ slug }).exec();
+  async findBySlug(slug: string): Promise<IProductDocument | null> {
+    return await ProductModel.findOne({ slug })
+      .populate("category", "_id slug")
+      .exec();
   }
-
-  findByName(productName: string) {
-    return this.model.findOne({ productName }).exec();
+  async findByName(productName: string) {
+    return await this.model.findOne({ productName }).exec();
   }
+  async findBySlugOrName(slug: string, productName: string) {
+    return await this.model.findOne({
+      $or: [{ slug }, { productName }],
+    });
+  }
+  async create(data: Partial<IProductDocument>) {
+    const doc = new this.model(data);
+    await doc.save();
+    await doc.populate("category", "_id slug");
+    return doc;
+  }
+  async update(id: string | Types.ObjectId, data: UpdateQuery<IProductDocument>) {
+    return await this.model
+      .findByIdAndUpdate(id, data, {
+        new: true,
+        runValidators: true,
+      })
+      .populate({
+        path: "category",
+        select: "_id slug",
+        options: { lean: false },
+      })
+      .exec();
+  }
+  async findAllPaginated(
+    page: number,
+    limit: number,
+    search?: string,
+    category?: string,
+    exclude?: string[],
+    status?:boolean
+  ) {
 
-  async findAllPaginated(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
-    const query: any = {};
+    const query: ProductSearchQuery = {};
+
     if (search) {
       query.$or = [
         { productName: { $regex: search, $options: "i" } },
         { slug: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } }
+        { description: { $regex: search, $options: "i" } },
       ];
     }
+    if (status !== undefined) {
+  query.status = status;
+}
+
+    if (category) {
+      if (!mongoose.Types.ObjectId.isValid(category)) {
+        return {
+          data: [],
+          total: 0,
+          page,
+          limit,
+        };
+      }
+      query.category = new mongoose.Types.ObjectId(category);
+    }
+
+    if (exclude?.length) {
+      const validIds = exclude
+        .filter(id => mongoose.Types.ObjectId.isValid(id))
+        .map(id => new mongoose.Types.ObjectId(id));
+
+      if (validIds.length) {
+        query._id = { $nin: validIds };
+      }
+    }
+
     const [data, total] = await Promise.all([
-      this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      this.model.countDocuments(query)
+      this.model
+        .find(query)
+        .populate("category", "_id slug")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+
+      this.model.countDocuments(query),
     ]);
 
-    return {
-      data,
-      total,
-      page,
-      limit
-    };
+    return { data, total, page, limit };
   }
-
+  async findAllRelated(
+    categoryId: mongoose.Types.ObjectId,
+    excludeProductId: mongoose.Types.ObjectId
+  ) {
+    return ProductModel.find({
+      category: categoryId,
+      _id: { $ne: excludeProductId },
+      status: true,
+    })
+      .populate("category", "_id slug")
+      .sort({ createdAt: -1 });
+  }
 }

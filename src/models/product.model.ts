@@ -33,7 +33,22 @@ const productSchema = new Schema<IProductDocument>(
       type: String,
       required: true,
     },
-
+     discountType: {
+      type: String,
+      enum: ["percentage", "fixed"],
+      default: null,
+    },
+    discountValue: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    
+    finalPrice:{
+     type: Number,
+      default: 0,
+      min: 0,
+    },
     image: {
       type: String,
       required: true,

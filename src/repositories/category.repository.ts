@@ -10,36 +10,42 @@ export class CategoryRepository extends BaseRepository<ICategoryDocument> implem
     super(CategoryModel);
   }
 
-  findBySlug(slug: string){
-    return this.model.findOne({ slug }).exec();
+async  findBySlug(slug: string) {
+    return await this.model.findOne({ slug }).exec();
   }
-
-  findByName(categoryName: string) {
-    return this.model.findOne({ categoryName }).exec();
+async  findByName(categoryName: string) {
+    return await this.model.findOne({ categoryName }).exec();
   }
-  
-async findAllPaginated(page: number,limit: number,search?: string){
-  const skip = (page - 1) * limit;
+  async findBySlugOrName(slug: string, categoryName: string) {
+  return await this.model.findOne({
+    $or: [{ slug }, { categoryName }],
+  });
+}
+  async findAllPaginated(page: number, limit: number, search?: string ,status?:boolean) {
+    const skip = (page - 1) * limit;
     const query: CategorySearchQuery = {};
 
-  if (search) {
-    query.$or = [
-      { categoryName: { $regex: search, $options: "i" } },
-      { slug: { $regex: search, $options: "i" } },
-     { description: { $regex: search, $options: "i" } }
-    ];
+    if (search) {
+      query.$or = [
+        { categoryName: { $regex: search, $options: "i" } },
+        { slug: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+      ];
+    }
+    if (status !== undefined) {
+     query.status = status;
+    }
+
+    const [data, total] = await Promise.all([
+      this.model.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      this.model.countDocuments(query)
+    ]);
+    return {
+      data,
+      total,
+      page,
+      limit
+    };
   }
- 
-  const [data, total] = await Promise.all([
-     this.model.find(query).sort({createdAt: -1}).skip(skip).limit(limit).lean(), 
-    this.model.countDocuments(query)
-  ]);
-  return {
-    data,
-    total,
-    page,
-    limit
-  };
-}
 
 }

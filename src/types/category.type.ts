@@ -1,37 +1,50 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+
+/* ---------------- SEARCH ---------------- */
+
 export type CategorySearchQuery = {
   $or?: Array<{
     categoryName?: { $regex: string; $options: string };
     slug?: { $regex: string; $options: string };
     description?: { $regex: string; $options: string };
   }>;
+  status?:boolean
 };
 
+/* ---------------- ENTITY (SERVICE LEVEL) ---------------- */
 
-export interface ICategory  {
-    categoryName: string;
-    image: string;
-    slug: string;
-    description: string;
-    status: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+export interface ICategory {
+  categoryName: string;
+  image: string;
+  slug: string;
+  description: string;
+  status: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
+
+/* ---------------- MONGOOSE DOCUMENT ---------------- */
+
 export interface ICategoryDocument extends Document {
-    categoryName: string;
-    image: string 
-    slug: string;
-    description: string;
-    status: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+  categoryName: string;
+  image: string;
+  slug: string;
+  description: string;
+  status: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
+
+/* ---------------- DTOs ---------------- */
+
 export interface CreateCategoryDTO {
   categoryName: string;
   description: string;
-  slug:string;
+  slug: string;
   imageBuffer: Buffer;
+  status:boolean;
 }
+
 export interface UpdateCategoryDTO {
   categoryName?: string;
   description?: string;
@@ -39,20 +52,50 @@ export interface UpdateCategoryDTO {
   slug?: string;
   imageBuffer?: Buffer;
 }
+
 export interface UpdateCategoryStatusDTO {
   status: boolean;
 }
-export interface PaginatedCategories {
-  data: ICategory[]; 
+
+/* ---------------- PAGINATION ---------------- */
+
+// ✅ For repository (documents)
+export interface PaginatedCategories<T> {
+  data: T[];
   total: number;
   page: number;
   limit: number;
 }
 
+// ✅ For API response (DTOs)
 export interface PaginatedCategoryResponse {
-  data: ICategory[];
+  data: CategoryResponseDto[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+}
+
+/* ---------------- RESPONSE DTO ---------------- */
+
+export interface CategoryResponseDto {
+  id: string;
+  categoryName: string;
+  description: string;
+  slug: string;
+  image: string;
+  status: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+//this  id for product
+export interface CategoryMiniDto {
+  id: string;
+  slug: string;
+}
+
+export interface ICategoryPopulated {
+  _id: Types.ObjectId;
+  slug: string;
 }

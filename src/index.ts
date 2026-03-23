@@ -20,10 +20,23 @@ initSocket(server);
 app.use(cookieParser());
 app.use(express.urlencoded());
 app.use(express.json());
-app.use(cors({ 
-    origin: process.env.CLIENT_URL,
-    methods: ["GET", "POST", "PUT","PATCH" ,"DELETE"],
-    credentials: true,
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_ADMIN_URL
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (Postman etc)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
 }));
 
 app.use("/api/customer",customerRouter)

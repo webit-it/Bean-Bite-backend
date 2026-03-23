@@ -4,6 +4,7 @@ import HttpStatus from "../../constants/httpsStatusCode";
 import { AdminLoginDTO } from "../../types/customer.type";
 import { IAdminAuthController } from "../../interfaces/controller/admin/admin.auth.controller.interface";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
+import { getCookieOptions } from "../../utils/jwt";
 
 export class AdminAuthController implements IAdminAuthController {
   constructor(private _adminAuthService: IAdminAuthService) { }
@@ -15,12 +16,11 @@ export class AdminAuthController implements IAdminAuthController {
       const { user, token } =
         await this._adminAuthService.adminLogin(phoneNumber, password);
 
-      res.cookie("access_token", token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 1000,
-      });
+     res.cookie(
+        "access_token",
+        token,
+        getCookieOptions(60 * 60 * 1000)
+      );
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -36,12 +36,7 @@ export class AdminAuthController implements IAdminAuthController {
     try {
       await this._adminAuthService.adminLogout();
 
-      res.clearCookie("access_token", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "strict",
-      });
-
+     res.clearCookie("access_token", getCookieOptions(0));
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Admin logged out successfully",

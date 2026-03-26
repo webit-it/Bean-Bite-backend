@@ -115,35 +115,43 @@ export class ProductController implements IProductController {
       });
     }
   };
-  getAllProducts = async (req: Request, res: Response) => {
-    try {
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 6;
-      const search = req.query.search as string | undefined;
+ getAllProducts = async (req: Request, res: Response) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    const search = req.query.search as string | undefined;
 
-      const result =
-        await this._productService.getAllProducts(page, limit, search);
+    const status =
+      req.query.status !== undefined
+        ? req.query.status === "true"
+        : undefined;
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        data: result.data,
-        pagination: {
-          total: result.total,
-          page: result.page,
-          limit: result.limit,
-          totalPages: result.totalPages,
-        },
-      });
-    } catch (error: unknown) {
+    const result = await this._productService.getAllProducts(
+      page,
+      limit,
+      search,
+      status
+    );
 
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : ERROR_MESSAGES.SERVER_ERROR,
-      });
-    }
-  };
+    res.status(HttpStatus.OK).json({
+      success: true,
+      data: result.data,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+    });
+  } catch (error: unknown) {
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.SERVER_ERROR,
+    });
+  }
+};
 
 }

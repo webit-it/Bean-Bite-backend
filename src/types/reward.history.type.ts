@@ -56,3 +56,18 @@ export interface RewardHistoryResponseDto {
     image?: string;
   } | null;
 }
+
+export interface PaginatedRewardHistoryResponse {
+  data: RewardHistoryResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface PaginatedHistory<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}

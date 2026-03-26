@@ -1,5 +1,5 @@
 import { ClientSession } from "mongoose";
-import { IRewardHistory, IRewardHistoryDocument } from "../../types/reward.history.type";
+import { IRewardHistory, IRewardHistoryDocument, PaginatedHistory } from "../../types/reward.history.type";
 import { UpdateQuery } from "mongoose";
 
 export interface IRewardHIstoryRepo {
@@ -12,4 +12,11 @@ export interface IRewardHIstoryRepo {
         skip?: number,
         limit?: number
     ): Promise<{data:IRewardHistoryDocument[],totalCount:number}>;
+
+    count(filter?: any): Promise<number>;
+     findAllPaginated(
+      page: number,
+      limit: number,
+    ): Promise<PaginatedHistory<IRewardHistoryDocument>>;
+
 }

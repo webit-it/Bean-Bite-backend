@@ -50,7 +50,8 @@ export class ProductRepository
     limit: number,
     search?: string,
     category?: string,
-    exclude?: string[]
+    exclude?: string[],
+    status?:boolean
   ) {
 
     const skip = (page - 1) * limit;
@@ -63,6 +64,9 @@ export class ProductRepository
         { description: { $regex: search, $options: "i" } },
       ];
     }
+    if (status !== undefined) {
+  query.status = status;
+}
 
     if (category) {
       if (!mongoose.Types.ObjectId.isValid(category)) {

@@ -113,8 +113,9 @@ export class CategoryController implements ICategoryController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 6;
       const search = req.query.search as string | undefined;
+      const status =req.query.status !== undefined ? req.query.status === "true" : undefined;
 
-      const result =await this._categoryService.getAllCategories(page, limit, search);
+      const result =await this._categoryService.getAllCategories(page, limit, search,status);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -136,6 +137,5 @@ export class CategoryController implements ICategoryController {
       });
     }
   };
-
 }
 

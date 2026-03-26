@@ -199,22 +199,29 @@ export class ProductService implements IProductServiceInteface {
       throw error;
     }
   };
-  getAllProducts = async (page: number, limit: number, search?: string) => {
+getAllProducts = async (
+  page: number,
+  limit: number,
+  search?: string,
+  status?: boolean
+) => {
 
-    const result = await this._productRepository.findAllPaginated(
-      page,
-      limit,
-      search
-    );
+  const result = await this._productRepository.findAllPaginated(
+    page,
+    limit,
+    search,
+    undefined,
+    undefined,
+    status
+  );
 
-    return {
-      data: result.data.map(ProductMapper.toResponse),
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: Math.ceil(result.total / limit),
-    };
-
+  return {
+    data: result.data.map(ProductMapper.toResponse),
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+    totalPages: Math.ceil(result.total / limit),
   };
+};
 
 }

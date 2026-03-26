@@ -18,10 +18,17 @@ export class RewardProgressRepository
             customer: customerId,
             status: "IN_PROGRESS",
         })
+            .populate({
+                path: "reward",
+                select: "rewardName",
+            })
             .sort({ level: -1, updatedAt: -1 })
             .session(session ?? null)
             .lean();
     }
+
+
+
     async incrementProgress(
         progressId: mongoose.Types.ObjectId,
         session?: ClientSession
@@ -67,13 +74,20 @@ export class RewardProgressRepository
         return CustomerRewardProgress.find({
             customer: customerId,
             status: "COMPLETED",
-        }).populate({
-            path: "redeemedProduct",
-            select: "productName image slug",
         })
+            .populate([
+                {
+                    path: "redeemedProduct",
+                    select: "productName image slug",
+                },
+                {
+                    path: "reward",
+                    select: "rewardName",
+                },
+            ])
             .sort({ completedAt: -1 })
             .session(session ?? null)
-            .lean<ICustomerRewardProgressPopulated[]>()
+            .lean<ICustomerRewardProgressPopulated[]>();
     }
 
 

@@ -17,7 +17,10 @@ export interface ICustomerRewardProgress {
 
 export interface CustomerRewardProgressResponseDto {
   customer: string;
-  reward: string;
+  reward: {
+    id: string;
+    rewardName: string;
+  };
   redeemedProduct: RedeemedProductDto | null;
   level: number;
   slotCount: number;
@@ -40,14 +43,21 @@ type RewardProgressStatus =
 
 export type ICustomerRewardProgressDocument = HydratedDocument<ICustomerRewardProgress>;
 
-
 export interface ICustomerRewardProgressPopulated
-    extends Omit<ICustomerRewardProgress, "redeemedProduct"> {
-    redeemedProduct?: RedeemedProductDto & {
-        _id: mongoose.Types.ObjectId;
-    };
-}
+  extends Omit<ICustomerRewardProgress, "reward" | "redeemedProduct"> {
 
+  reward: {
+    _id: mongoose.Types.ObjectId;
+    rewardName: string;
+  };
+
+  redeemedProduct?: {
+    _id: mongoose.Types.ObjectId;
+    productName: string;
+    slug: string;
+    image: string;
+  };
+}
 
 export interface RedeemedProductDto {
   id: string;

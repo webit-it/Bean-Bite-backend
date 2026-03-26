@@ -14,9 +14,14 @@ export class CustomerRewardProgressMapper {
       }
       : null;
 
+    const reward = {
+      id: doc.reward._id.toString(),
+      rewardName: doc.reward.rewardName,
+    };
+
     return {
       customer: doc.customer.toString(),
-      reward: doc.reward.toString(),
+      reward,
       redeemedProduct,
       level: doc.level,
       slotCount: doc.slotCount,
@@ -28,12 +33,17 @@ export class CustomerRewardProgressMapper {
       updatedAt: doc.updatedAt,
     };
   }
+
+
   static toResponseFromDocument(
     doc: ICustomerRewardProgressDocument
   ): CustomerRewardProgressResponseDto {
     return {
       customer: doc.customer.toString(),
-      reward: doc.reward.toString(),
+      reward: {
+        id: doc.reward.toString(),
+        rewardName: "",
+      },
       redeemedProduct: null,
       level: doc.level,
       slotCount: doc.slotCount,

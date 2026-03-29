@@ -15,10 +15,12 @@ import { IRewardHIstoryRepo } from "../../interfaces/repository/reward.history.r
 import { INotificationRepository } from "../../interfaces/repository/notification.repository.interface";
 import { getIO } from "../../config/socket";
 import IProductRepository from "../../interfaces/repository/product.repository.interface";
+import { whatsappProcedure } from "../../queues/procedure";
+import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 
 
 export class QRService implements IQrService {
-    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo, private _notificationRepo: INotificationRepository,private _productRepo:IProductRepository) { }
+    constructor(private _qrRepo: IQrRepository, private _customerProgress: ICustomerRewardProgressRepository, private _rewardRepo: IRewardRepository, private _rewardHistory: IRewardHIstoryRepo, private _notificationRepo: INotificationRepository, private _productRepo: IProductRepository, private _customerRepo: ICustomerAuthRepo) { }
     generate = async () => {
         try {
             const code = randomUUID();
@@ -77,6 +79,10 @@ export class QRService implements IQrService {
 
             let completedProgressId: mongoose.Types.ObjectId | null = null;
             let message = Messages.QR_VERIFIED;
+
+            let reward: any = null;
+            let redeemedProductDetails: any = null;
+            let completedProgress: any = null;
 
             if (!activeProgress) {
                 const firstReward = await this._rewardRepo.findByLevel(1, session);
@@ -139,16 +145,16 @@ export class QRService implements IQrService {
                 activeProgress = updatedProgress;
 
                 if (updatedProgress.filledSlots >= updatedProgress.slotCount) {
-                    const reward = await this._rewardRepo.findByLevel(updatedProgress.level, session);
+                    reward = await this._rewardRepo.findByLevel(updatedProgress.level, session);
 
                     if (!reward || !reward.rewardProducts.length) {
                         throw new AppError("No reward products available", HttpStatus.INTERNAL_SERVER_ERROR);
                     }
 
                     const redeemedProduct = this.pickRandomProduct(reward.rewardProducts);
-                    const redeemedProductDetails=await this._productRepo.findById(redeemedProduct.toString())
+                    redeemedProductDetails = await this._productRepo.findById(redeemedProduct.toString())
 
-                    const completedProgress = await this._customerProgress.markAsCompleted(
+                    completedProgress = await this._customerProgress.markAsCompleted(
                         updatedProgress._id,
                         redeemedProduct,
                         session
@@ -230,9 +236,27 @@ export class QRService implements IQrService {
 
             await session.commitTransaction();
 
+            if (completedProgressId && redeemedProductDetails) {
+                const customer = await this._customerRepo.findById(String(customerObjectId));
+
+                if (customer?.phoneNumber) {
+                    await whatsappProcedure({
+                        type: "REWARD",
+                        payload: {
+                            to: customer.phoneNumber,
+                            customerName: customer.fullName,
+                            productName: redeemedProductDetails.productName,
+                            rewardName: reward.rewardName,
+                            rewardLevel: `Level ${completedProgress!.level}`,
+                            productImageUrl: redeemedProductDetails.image,
+                        },
+                    });
+                }
+            }
+
             const latestActive = await this._customerProgress.getLatestActiveProgress(customerObjectId);
 
-            const completedProgress = completedProgressId
+            const completedProgressData = completedProgressId
                 ? await this._customerProgress.findByIdWithProduct(completedProgressId)
                 : null;
 
@@ -243,8 +267,8 @@ export class QRService implements IQrService {
                     activeReward: latestActive
                         ? CustomerRewardProgressMapper.toResponseFromDocument(latestActive)
                         : null,
-                    completedReward: completedProgress
-                        ? CustomerRewardProgressMapper.toResponse(completedProgress)
+                    completedReward: completedProgressData
+                        ? CustomerRewardProgressMapper.toResponse(completedProgressData)
                         : null,
                 },
             };

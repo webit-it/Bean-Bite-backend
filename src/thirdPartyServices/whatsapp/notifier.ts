@@ -19,9 +19,12 @@ export async function handleWhatsAppNotification(job: Job) {
     case "REWARD": {
       const templatePayload = buildRewardTemplate({
         to: payload.to,
-        name: payload.name,
-        points: payload.points,
-        imageUrl: payload.imageUrl,
+        customerName: payload.customerName,
+        productName: payload.productName,
+        rewardName: payload.rewardName,
+        rewardLevel: payload.rewardLevel,
+        actionUrl: payload.actionUrl,
+        productImageUrl: payload.productImageUrl,
       });
 
       return sendTemplateViaMeta({ payload: templatePayload });

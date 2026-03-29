@@ -9,9 +9,10 @@ import HttpStatus from "../../constants/httpsStatusCode";
 import { ICustomerAuthService } from "../../interfaces/service/customer/auth.customer.interface";
 import { ICustomerAuthRepo } from "../../interfaces/repository/customer.auth.repository.inerface";
 import { CustomerMapper } from "../../mappers/customer.mapper";
+import { whatsappProcedure } from "../../queues/procedure";
 
 export class CustomerAuthService implements ICustomerAuthService {
-  constructor(private _customerRepo: ICustomerAuthRepo) {}
+  constructor(private _customerRepo: ICustomerAuthRepo) { }
 
   register = async (
     fullName: string,
@@ -75,7 +76,14 @@ export class CustomerAuthService implements ICustomerAuthService {
       await this._customerRepo.saveCustomer(customer);
 
       const mappedCustomer = await CustomerMapper.toResponse(customer);
-
+      // enqueu whatsapp otp notification job
+      await whatsappProcedure({
+        type: "OTP",
+        payload: {
+          to: mappedCustomer.phoneNumber,
+          otp
+        }
+      })
       return { customer: mappedCustomer, token, refreshToken };
     } catch (error) {
       throw error;
@@ -123,7 +131,7 @@ export class CustomerAuthService implements ICustomerAuthService {
 
     return {
       token,
-      message:Messages.OTP_VERIFIED ,
+      message: Messages.OTP_VERIFIED,
     };
   }
 
@@ -187,7 +195,7 @@ export class CustomerAuthService implements ICustomerAuthService {
     if (!customer.password) {
       throw {
         status: HttpStatus.BAD_REQUEST,
-        message:Messages.MISSING_FIELDS,
+        message: Messages.MISSING_FIELDS,
       };
     }
 
@@ -215,16 +223,16 @@ export class CustomerAuthService implements ICustomerAuthService {
       refreshToken,
     };
   }
- findById = async (customerId: string) => {
-  return await this._customerRepo.findById(customerId);
-};
+  findById = async (customerId: string) => {
+    return await this._customerRepo.findById(customerId);
+  };
 
-async updateRefreshToken(customerId: string,refreshToken: string | null) {
-  await this._customerRepo.updateRefreshToken(
-    customerId,
-    refreshToken
-  );
-}
+  async updateRefreshToken(customerId: string, refreshToken: string | null) {
+    await this._customerRepo.updateRefreshToken(
+      customerId,
+      refreshToken
+    );
+  }
   clearRefreshToken = async (refreshToken: string) => {
     const customer =
       await this._customerRepo.findByRefreshToken(refreshToken);

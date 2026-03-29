@@ -9,9 +9,11 @@ interface OTPPayload {
 
 interface RewardPayload {
   to: string;
-  name: string;
-  points: number;
-  imageUrl: string;
+  customerName: string;
+  productName: string;
+  rewardName: string;
+  rewardLevel: string;
+  productImageUrl: string;
 }
 
 type WhatsAppPayloadMap = {
